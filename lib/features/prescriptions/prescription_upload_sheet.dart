@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../core/theme.dart';
 
@@ -23,9 +24,26 @@ class _PrescriptionUploadSheetState extends State<_PrescriptionUploadSheet> {
   bool _consent = false;
   bool _picking = false;
 
-  Future<void> _pick({bool pdf = false}) async {
+  Future<void> _pick({bool pdf = false, bool camera = false}) async {
     setState(() => _picking = true);
     try {
+      if (camera) {
+        final image = await ImagePicker().pickImage(source: ImageSource.camera);
+        if (!mounted) return;
+        if (image != null) {
+          final size = await image.length();
+          if (!mounted) return;
+          final file = PlatformFile(name: image.name, path: image.path, size: size);
+          if (file.size > 15 * 1024 * 1024) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Choose a file smaller than 15 MB.')),
+            );
+          } else {
+            Navigator.pop(context, file);
+          }
+        }
+        return;
+      }
       final result = await FilePicker.platform.pickFiles(
         type: pdf ? FileType.custom : FileType.image,
         allowedExtensions: pdf ? ['pdf'] : null,
@@ -117,6 +135,15 @@ class _PrescriptionUploadSheetState extends State<_PrescriptionUploadSheet> {
           const SizedBox(height: 12),
           Row(
             children: [
+              Expanded(
+                child: _method(
+                  Icons.camera_alt_outlined,
+                  'Take Photo',
+                  'Use camera',
+                  () => _pick(camera: true),
+                ),
+              ),
+              const SizedBox(width: 8),
               Expanded(
                 child: _method(
                   Icons.photo_library_outlined,

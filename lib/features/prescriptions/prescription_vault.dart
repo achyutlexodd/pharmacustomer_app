@@ -15,8 +15,9 @@ import 'store_allocation_status.dart';
 
 class PrescriptionVault extends StatefulWidget {
   final String patientName;
+  final VoidCallback? onBack;
 
-  const PrescriptionVault({super.key, required this.patientName});
+  const PrescriptionVault({super.key, required this.patientName, this.onBack});
 
   @override
   State<PrescriptionVault> createState() =>
@@ -30,6 +31,14 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
   bool _hasArchivedPrescription = true;
   bool _firstArchiveVisible = true;
 
+  void _handleBack() {
+    if (widget.onBack != null) {
+      widget.onBack!();
+    } else if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +46,7 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: _handleBack,
         ),
         title: const Text('Prescription Vault'),
         actions: [

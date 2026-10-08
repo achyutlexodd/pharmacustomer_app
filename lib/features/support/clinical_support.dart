@@ -15,7 +15,7 @@ class _ClinicalSupportState extends State<ClinicalSupport> {
   final _messages = <_Message>[
     const _Message(
       'Hello Marcus! I am your PharmaCustomer_app clinical liaison. Dr. Verma has pulled up your active medications and cold-chain parcel records.',
-      false,
+      false, 
     ),
     const _Message(
       'Order #AC-884920 · Dapavel 10mg · Cold-chain status 4.2°C optimal · Out for rapid courier',

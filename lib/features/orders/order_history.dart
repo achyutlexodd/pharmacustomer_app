@@ -12,12 +12,18 @@ class OrderHistory extends StatefulWidget {
 
 class _OrderHistoryState extends State<OrderHistory> {
   String filter = 'All';
+  static const orderIds = ['#HRX-982310', '#HRX-881294'];
 
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       title: const Text('Order History'),
-      actions: [TextButton(onPressed: () {}, child: const Text('18 Orders'))],
+      actions: [
+        TextButton(
+          onPressed: () {},
+          child: Text('${orderIds.toSet().length} Orders'),
+        ),
+      ],
     ),
     body: ListView(
       padding: const EdgeInsets.all(20),
@@ -62,7 +68,7 @@ class _OrderHistoryState extends State<OrderHistory> {
         ),
         const SizedBox(height: 16),
         _OrderCard(
-          id: '#HRX-982310',
+          id: orderIds[0],
           status: 'Delivered Today · 2:45 PM',
           total: '₹1,507',
           items: const [
@@ -74,7 +80,7 @@ class _OrderHistoryState extends State<OrderHistory> {
         ),
         const SizedBox(height: 16),
         _OrderCard(
-          id: '#HRX-881294',
+          id: orderIds[1],
           status: 'Delivered 12 Aug · Express Delivery',
           total: '₹340',
           items: const ['Metformin Hydrochloride 500mg · Strip of 60'],

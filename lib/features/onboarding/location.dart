@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../../core/theme.dart';
 import '../home/main_nav_wrapper.dart';
@@ -34,15 +36,40 @@ class _LocationState extends State<Location> {
 
   Future<void> _detectLocation() async {
     setState(() => _isDetecting = true);
-    // ponytail: replace with geolocator + geocoding when location API is integrated
-    await Future.delayed(const Duration(seconds: 1));
-    if (!mounted) return;
-    setState(() {
-      _isDetecting = false;
-      _pincodeController.text = '201301';
-      _addressController.text = 'Sector 62, Indirapuram';
-      _selectedCity = 'Noida';
-    });
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        throw Exception('Turn on Location Services and try again.');
+      }
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        throw Exception('Location permission is required to detect your location.');
+      }
+      final position = await Geolocator.getCurrentPosition();
+      final places = await placemarkFromCoordinates(position.latitude, position.longitude);
+      if (!mounted) return;
+      final place = places.firstOrNull;
+      final city = place?.locality ?? place?.subAdministrativeArea;
+      setState(() {
+        _pincodeController.text = place?.postalCode ?? '';
+        _addressController.text = [place?.name, place?.subLocality, place?.thoroughfare]
+            .whereType<String>().where((value) => value.isNotEmpty).join(', ');
+        _selectedCity = city?.toLowerCase() == 'bengaluru'
+            ? 'Bangalore'
+            : _cities.where((value) => value.toLowerCase() == city?.toLowerCase()).firstOrNull;
+      });
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.toString().replaceFirst('Exception: ', ''))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isDetecting = false);
+    }
   }
 
   void _continue() {

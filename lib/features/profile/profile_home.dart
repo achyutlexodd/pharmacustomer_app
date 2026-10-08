@@ -31,10 +31,10 @@ class ProfileHome extends StatelessWidget {
               child: Icon(Icons.person, color: AppTheme.primary, size: 30),
             ),
             title: Text(
-              name.isEmpty ? 'Aditi Rao' : name,
+              name.isEmpty ? 'Achyut' : name,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
             ),
-            subtitle: const Text('+91 98860 12345'),
+            subtitle: const Text('+91 7488882789'),
             trailing: IconButton(
               onPressed: () {},
               icon: const Icon(Icons.edit_outlined, color: AppTheme.primary),

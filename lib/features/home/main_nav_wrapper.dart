@@ -34,7 +34,10 @@ class _MainNavWrapperState extends State<MainNavWrapper> {
           Home(name: widget.name, location: widget.location),
           Search(onBack: () => setState(() => _currentIndex = 0)),
           const OrderHistory(),
-          PrescriptionVault(patientName: widget.name),
+          PrescriptionVault(
+            patientName: widget.name,
+            onBack: () => setState(() => _currentIndex = 0),
+          ),
           ProfileHome(name: widget.name),
         ],
       ),

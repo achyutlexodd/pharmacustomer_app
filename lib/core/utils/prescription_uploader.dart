@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../theme.dart';
 
@@ -32,9 +33,26 @@ class _PrescriptionPickerSheet extends StatefulWidget {
 class _PrescriptionPickerSheetState extends State<_PrescriptionPickerSheet> {
   bool _picking = false;
 
-  Future<void> _pick(FileType type) async {
+  Future<void> _pick(FileType type, {bool camera = false}) async {
     setState(() => _picking = true);
     try {
+      if (camera) {
+        final image = await ImagePicker().pickImage(source: ImageSource.camera);
+        if (!mounted) return;
+        if (image != null) {
+          final size = await image.length();
+          if (!mounted) return;
+          final file = PlatformFile(name: image.name, path: image.path, size: size);
+          widget.onFilePicked?.call(file);
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Prescription "${file.name}" uploaded')),
+          );
+        } else {
+          Navigator.pop(context);
+        }
+        return;
+      }
       final result = await FilePicker.platform.pickFiles(
         type: type == FileType.image ? FileType.image : FileType.custom,
         allowedExtensions: type == FileType.custom ? ['pdf'] : null,
@@ -91,7 +109,7 @@ class _PrescriptionPickerSheetState extends State<_PrescriptionPickerSheet> {
               icon: Icons.camera_alt_outlined,
               title: 'Take a Photo',
               subtitle: 'Use your camera to capture the prescription',
-              onTap: () => _pick(FileType.image),
+              onTap: () => _pick(FileType.image, camera: true),
             ),
             const SizedBox(height: 12),
             _OptionTile(
