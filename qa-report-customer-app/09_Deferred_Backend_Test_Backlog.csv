@@ -1,0 +1,11 @@
+Test ID,Scenario Description,Preconditions,Target Endpoint,Verification Focus,Risk
+DB-01,OTP Brute Force and Rate Limiting,Staging API live,POST /api/v1/auth/otp/verify,Verify lockout after 5 incorrect attempts,High (Account Takeover)
+DB-02,IDOR across Customer Orders,Two customer accounts,GET /api/v1/orders/{id},Customer B cannot view or download Customer A invoice,High (PII & Medical Record Leak)
+DB-03,Price Tampering in Request Payload,Cart with ₹1000 item,POST /api/v1/orders/create,Ensure backend ignores client-submitted price and recomputes from DB,Critical (Financial Fraud)
+DB-04,Stock Reservation Concurrency Race,1 unit remaining,POST /api/v1/checkout/reserve,Concurrent requests from 2 users grant reservation to only 1,Critical (Overselling)
+DB-05,Coupon Abuse and Re-use,Single-use coupon,POST /api/v1/coupons/apply,Verify single redemption per user across concurrent checkouts,Medium (Financial Loss)
+DB-06,Gateway Webhook Signature Forgery,Mock payment gateway,POST /api/v1/payments/webhook,Rejects fake HMAC signature,Critical (Fraudulent Confirmation)
+DB-07,Prescription ID Tampering,Order with Rx items,POST /api/v1/orders/create,Rejects order if prescription ID is not APPROVED or belongs to another user,Critical (Regulatory Violation)
+DB-08,Refund Ceiling Enforcement,Cancelled order ₹500,POST /api/v1/orders/{id}/refund,Prevents refunding more than paid amount or duplicate refund calls,High (Double Refund)
+DB-09,Delivery OTP Expiry & Invalidation,Order out for delivery,POST /api/v1/orders/{id}/verify-otp,Rejects invalid code and invalidates after delivery,Medium (Handover Security)
+DB-10,Historical Invoice Immutability,Tax slab update in master,GET /api/v1/invoices/{id},Existing invoices retain original snapshot tax rates,High (GST Compliance)

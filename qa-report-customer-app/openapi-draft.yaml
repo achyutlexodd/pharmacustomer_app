@@ -1,0 +1,416 @@
+openapi: 3.0.3
+info:
+  title: Pharma Customer API
+  version: 1.0.0
+  description: Draft API contract. One base path; server-side price, tax, stock, prescription, payment and eligibility rules are authoritative.
+servers:
+  - url: https://api.staging.pharmavis.in/api/v1
+    description: Staging
+security:
+  - bearerAuth: []
+paths:
+  /auth/otp/send:
+    post:
+      security: []
+      summary: Send login or registration OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone_number]
+              properties: {phone_number: {type: string, example: '+919876543210'}}
+      responses:
+        '200': {description: OTP sent, content: {application/json: {schema: {$ref: '#/components/schemas/OtpSession'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+  /auth/otp/verify:
+    post:
+      security: []
+      summary: Verify OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_id, otp_code]
+              properties: {session_id: {type: string}, otp_code: {type: string, minLength: 6, maxLength: 6}}
+      responses:
+        '200': {description: Verified, content: {application/json: {schema: {type: object, properties: {access_token: {type: string}, is_profile_complete: {type: boolean}}}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /customer/profile:
+    get:
+      summary: Get customer profile
+      responses:
+        '200': {description: Profile, content: {application/json: {schema: {$ref: '#/components/schemas/Profile'}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    put:
+      summary: Create or update customer profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Profile'}
+      responses:
+        '200': {description: Updated profile, content: {application/json: {schema: {$ref: '#/components/schemas/Profile'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /customer/addresses:
+    get:
+      summary: List customer addresses
+      responses:
+        '200': {description: Address list, content: {application/json: {schema: {$ref: '#/components/schemas/AddressPage'}}}}
+    post:
+      summary: Create address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Address'}
+      responses:
+        '201': {description: Created, content: {application/json: {schema: {$ref: '#/components/schemas/Address'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /customer/addresses/{addressId}:
+    parameters:
+      - {$ref: '#/components/parameters/addressId'}
+    get:
+      summary: Get address
+      responses:
+        '200': {description: Address, content: {application/json: {schema: {$ref: '#/components/schemas/Address'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      summary: Update address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Address'}
+      responses:
+        '200': {description: Updated address, content: {application/json: {schema: {$ref: '#/components/schemas/Address'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+    delete:
+      summary: Delete address
+      responses:
+        '204': {description: Deleted}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /serviceability/check:
+    post:
+      summary: Check PIN serviceability
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [pincode], properties: {pincode: {type: string, pattern: '^[0-9]{6}$'}}}
+      responses:
+        '200': {description: Serviceability result, content: {application/json: {schema: {type: object, properties: {serviceable: {type: boolean}, estimated_minutes: {type: integer}, pharmacies: {type: array, items: {type: string}}}}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /catalog/medicines:
+    get:
+      security: []
+      summary: Search/list medicines
+      parameters:
+        - {name: query, in: query, schema: {type: string, maxLength: 200}}
+        - {name: pincode, in: query, schema: {type: string}}
+        - {$ref: '#/components/parameters/page'}
+        - {$ref: '#/components/parameters/pageSize'}
+        - {name: sort, in: query, schema: {type: string, enum: [relevance, price_asc, price_desc, name]}}
+        - {name: in_stock, in: query, schema: {type: boolean}}
+      responses:
+        '200': {description: Catalog page, content: {application/json: {schema: {$ref: '#/components/schemas/MedicinePage'}}}}
+  /catalog/medicines/{medicineId}:
+    get:
+      security: []
+      summary: Get medicine detail
+      parameters:
+        - {name: medicineId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200': {description: Medicine, content: {application/json: {schema: {$ref: '#/components/schemas/Medicine'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /prescriptions:
+    get:
+      summary: List prescription vault
+      parameters:
+        - {$ref: '#/components/parameters/page'}
+        - {$ref: '#/components/parameters/pageSize'}
+        - {name: status, in: query, schema: {type: string}}
+      responses:
+        '200': {description: Prescription page, content: {application/json: {schema: {$ref: '#/components/schemas/PrescriptionPage'}}}}
+  /prescriptions/upload:
+    post:
+      summary: Upload prescription document
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties: {file: {type: string, format: binary}, patient_name: {type: string}}
+      responses:
+        '201': {description: Uploaded prescription, content: {application/json: {schema: {$ref: '#/components/schemas/Prescription'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '413': {description: File too large, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+  /prescriptions/{prescriptionId}:
+    get:
+      summary: Get prescription metadata
+      parameters:
+        - {$ref: '#/components/parameters/prescriptionId'}
+      responses:
+        '200': {description: Prescription, content: {application/json: {schema: {$ref: '#/components/schemas/Prescription'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /checkout/quote:
+    post:
+      summary: Revalidate cart, coupon, prescription and prices; return authoritative quote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/OrderInput'}
+      responses:
+        '200': {description: Quote, content: {application/json: {schema: {$ref: '#/components/schemas/Quote'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /orders/quote:
+    post:
+      summary: Quote order (legacy contract alias retained from readiness inventory)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/OrderInput'}
+      responses:
+        '200': {description: Quote, content: {application/json: {schema: {$ref: '#/components/schemas/Quote'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /orders:
+    get:
+      summary: List orders
+      parameters:
+        - {$ref: '#/components/parameters/page'}
+        - {$ref: '#/components/parameters/pageSize'}
+        - {name: status, in: query, schema: {type: string}}
+      responses:
+        '200': {description: Order page, content: {application/json: {schema: {$ref: '#/components/schemas/OrderPage'}}}}
+  /orders/create:
+    post:
+      summary: Create order (legacy path retained from readiness inventory)
+      parameters:
+        - {$ref: '#/components/parameters/idempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/OrderInput'}
+      responses:
+        '201': {description: Created, content: {application/json: {schema: {$ref: '#/components/schemas/Order'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/ValidationError'}
+  /orders/{orderId}:
+    parameters:
+      - {$ref: '#/components/parameters/orderId'}
+    get:
+      summary: Get order and current state
+      responses:
+        '200': {description: Order, content: {application/json: {schema: {$ref: '#/components/schemas/Order'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /orders/{orderId}/tracking:
+    get:
+      summary: Get order tracking timeline
+      parameters:
+        - {$ref: '#/components/parameters/orderId'}
+      responses:
+        '200': {description: Tracking, content: {application/json: {schema: {type: object, properties: {status: {type: string}, events: {type: array, items: {type: object, properties: {status: {type: string}, occurred_at: {type: string, format: date-time}, description: {type: string}}}}}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /orders/{orderId}/cancel:
+    post:
+      summary: Request cancellation; server validates lifecycle stage
+      parameters:
+        - {$ref: '#/components/parameters/orderId'}
+        - {$ref: '#/components/parameters/idempotencyKey'}
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: {type: object, properties: {reason: {type: string}}}
+      responses:
+        '200': {description: Cancellation result, content: {application/json: {schema: {$ref: '#/components/schemas/Order'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /payments/initiate:
+    post:
+      summary: Initiate payment
+      parameters:
+        - {$ref: '#/components/parameters/idempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [order_id, method], properties: {order_id: {type: string}, method: {type: string, enum: [UPI, Card, NetBanking, COD]}}}
+      responses:
+        '201': {description: Payment intent, content: {application/json: {schema: {$ref: '#/components/schemas/Payment'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /payments/{paymentId}/status:
+    get:
+      summary: Get payment status
+      parameters:
+        - {name: paymentId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200': {description: Payment status, content: {application/json: {schema: {$ref: '#/components/schemas/Payment'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /refunds:
+    get:
+      summary: List refunds
+      parameters:
+        - {$ref: '#/components/parameters/page'}
+        - {$ref: '#/components/parameters/pageSize'}
+        - {name: order_id, in: query, schema: {type: string}}
+      responses:
+        '200': {description: Refund page, content: {application/json: {schema: {$ref: '#/components/schemas/RefundPage'}}}}
+  /refunds/{refundId}:
+    get:
+      summary: Get refund status
+      parameters:
+        - {name: refundId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200': {description: Refund, content: {application/json: {schema: {$ref: '#/components/schemas/Refund'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /orders/{orderId}/invoice:
+    get:
+      summary: Get order invoice metadata/download URL
+      parameters:
+        - {$ref: '#/components/parameters/orderId'}
+      responses:
+        '200': {description: Invoice, content: {application/json: {schema: {$ref: '#/components/schemas/Invoice'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /notifications:
+    get:
+      summary: List customer notifications
+      parameters:
+        - {$ref: '#/components/parameters/page'}
+        - {$ref: '#/components/parameters/pageSize'}
+        - {name: unread_only, in: query, schema: {type: boolean}}
+      responses:
+        '200': {description: Notification page, content: {application/json: {schema: {$ref: '#/components/schemas/NotificationPage'}}}}
+  /notifications/{notificationId}/read:
+    post:
+      summary: Mark notification read
+      parameters:
+        - {name: notificationId, in: path, required: true, schema: {type: string}}
+      responses:
+        '204': {description: Marked read}
+  /support/tickets:
+    get:
+      summary: List support tickets
+      parameters:
+        - {$ref: '#/components/parameters/page'}
+        - {$ref: '#/components/parameters/pageSize'}
+      responses:
+        '200': {description: Ticket page, content: {application/json: {schema: {$ref: '#/components/schemas/TicketPage'}}}}
+    post:
+      summary: Create support ticket
+      parameters:
+        - {$ref: '#/components/parameters/idempotencyKey'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [subject, message], properties: {order_id: {type: string}, subject: {type: string}, message: {type: string}, attachments: {type: array, items: {type: string}}}}
+      responses:
+        '201': {description: Ticket, content: {application/json: {schema: {$ref: '#/components/schemas/Ticket'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /support/tickets/{ticketId}:
+    get:
+      summary: Get support ticket
+      parameters:
+        - {name: ticketId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200': {description: Ticket, content: {application/json: {schema: {$ref: '#/components/schemas/Ticket'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+components:
+  securitySchemes:
+    bearerAuth: {type: http, scheme: bearer, bearerFormat: JWT}
+  parameters:
+    idempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 16, maxLength: 128}}
+    page: {name: page, in: query, schema: {type: integer, minimum: 1, default: 1}}
+    pageSize: {name: page_size, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+    addressId: {name: addressId, in: path, required: true, schema: {type: string}}
+    prescriptionId: {name: prescriptionId, in: path, required: true, schema: {type: string}}
+    orderId: {name: orderId, in: path, required: true, schema: {type: string}}
+  responses:
+    BadRequest: {description: Invalid request, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+    Unauthorized: {description: Authentication required/invalid, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+    NotFound: {description: Resource not found, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+    Conflict: {description: State or idempotency conflict, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+    ValidationError: {description: Business validation failed, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+    TooManyRequests: {description: Rate limited, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties: {code: {type: string}, message: {type: string}, details: {type: array, items: {type: object}}, request_id: {type: string}}
+    PageMeta:
+      type: object
+      properties: {page: {type: integer}, page_size: {type: integer}, total_items: {type: integer}, total_pages: {type: integer}}
+    OtpSession:
+      type: object
+      properties: {session_id: {type: string}, expires_in_seconds: {type: integer}}
+    Profile:
+      type: object
+      properties: {full_name: {type: string}, date_of_birth: {type: string, format: date}, gender: {type: string}, email: {type: string, format: email}}
+    Address:
+      type: object
+      properties: {id: {type: string}, label: {type: string}, line1: {type: string}, line2: {type: string}, city: {type: string}, state: {type: string}, pincode: {type: string}, is_default: {type: boolean}}
+    AddressPage:
+      type: object
+      properties: {items: {type: array, items: {$ref: '#/components/schemas/Address'}}, pagination: {$ref: '#/components/schemas/PageMeta'}}
+    Medicine:
+      type: object
+      properties: {id: {type: string}, name: {type: string}, composition: {type: string}, price: {type: number}, mrp: {type: number}, gst_rate: {type: number}, requires_prescription: {type: boolean}, in_stock: {type: boolean}}
+    MedicinePage:
+      type: object
+      properties: {items: {type: array, items: {$ref: '#/components/schemas/Medicine'}}, pagination: {$ref: '#/components/schemas/PageMeta'}}
+    Prescription:
+      type: object
+      properties: {id: {type: string}, status: {type: string}, file_name: {type: string}, uploaded_at: {type: string, format: date-time}, download_url: {type: string, format: uri}}
+    PrescriptionPage:
+      type: object
+      properties: {items: {type: array, items: {$ref: '#/components/schemas/Prescription'}}, pagination: {$ref: '#/components/schemas/PageMeta'}}
+    OrderLine:
+      type: object
+      required: [medicine_id, quantity]
+      properties: {medicine_id: {type: string}, quantity: {type: integer, minimum: 1}, prescription_id: {type: string}}
+    OrderInput:
+      type: object
+      required: [address_id, payment_method, items]
+      properties: {address_id: {type: string}, payment_method: {type: string, enum: [UPI, Card, NetBanking, COD]}, coupon_code: {type: string}, prescription_ids: {type: array, items: {type: string}}, items: {type: array, minItems: 1, items: {$ref: '#/components/schemas/OrderLine'}}}
+    Quote:
+      type: object
+      properties: {quote_id: {type: string}, items_subtotal: {type: number}, taxable_total: {type: number}, tax_total: {type: number}, delivery_fee: {type: number}, handling_fee: {type: number}, discount_total: {type: number}, total_payable: {type: number}, expires_at: {type: string, format: date-time}}
+    Order:
+      type: object
+      properties: {id: {type: string}, status: {type: string}, payment_status: {type: string}, total_payable: {type: number}, prescription_ids: {type: array, items: {type: string}}, created_at: {type: string, format: date-time}}
+    OrderPage:
+      type: object
+      properties: {items: {type: array, items: {$ref: '#/components/schemas/Order'}}, pagination: {$ref: '#/components/schemas/PageMeta'}}
+    Payment:
+      type: object
+      properties: {id: {type: string}, status: {type: string, enum: [PENDING, SUCCESS, FAILED]}, amount: {type: number}, redirect_url: {type: string, format: uri}}
+    Refund:
+      type: object
+      properties: {id: {type: string}, order_id: {type: string}, status: {type: string}, amount: {type: number}, created_at: {type: string, format: date-time}}
+    RefundPage:
+      type: object
+      properties: {items: {type: array, items: {$ref: '#/components/schemas/Refund'}}, pagination: {$ref: '#/components/schemas/PageMeta'}}
+    Invoice:
+      type: object
+      properties: {invoice_number: {type: string}, order_id: {type: string}, amount: {type: number}, download_url: {type: string, format: uri}}
+    Notification:
+      type: object
+      properties: {id: {type: string}, title: {type: string}, body: {type: string}, read_at: {type: string, format: date-time}, created_at: {type: string, format: date-time}}
+    NotificationPage:
+      type: object
+      properties: {items: {type: array, items: {$ref: '#/components/schemas/Notification'}}, pagination: {$ref: '#/components/schemas/PageMeta'}}
+    Ticket:
+      type: object
+      properties: {id: {type: string}, order_id: {type: string}, subject: {type: string}, message: {type: string}, status: {type: string}, created_at: {type: string, format: date-time}}
+    TicketPage:
+      type: object
+      properties: {items: {type: array, items: {$ref: '#/components/schemas/Ticket'}}, pagination: {$ref: '#/components/schemas/PageMeta'}}
