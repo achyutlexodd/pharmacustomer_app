@@ -39,8 +39,7 @@ class PrescriptionRequiredBanner extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            'A valid prescription from a registered medical practitioner is mandatory '
-            'for this medicine. You can upload it during checkout or consult our in-house doctor.',
+            'A valid prescription from a registered medical practitioner is needed before this medicine can be dispensed. Upload it securely to continue.',
             style: TextStyle(color: AppTheme.error, fontSize: 12),
           ),
           const SizedBox(height: 10),

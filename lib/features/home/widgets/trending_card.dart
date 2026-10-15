@@ -38,8 +38,9 @@ class TrendingCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.outlineBorder),
+        boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.045), blurRadius: 14, offset: const Offset(0, 5))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +48,9 @@ class TrendingCard extends StatelessWidget {
           _ImagePlaceholder(tag: tag, tagColor: tagColor, tagTextColor: tagTextColor),
           const SizedBox(height: 10),
           Text(title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.text)),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppTheme.text)),
           const SizedBox(height: 2),
           Text(subtitle, style: const TextStyle(fontSize: 11, color: Colors.grey)),
           const SizedBox(height: 10),
@@ -115,9 +118,9 @@ class _ImagePlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 100,
+      height: 112,
       width: double.infinity,
-      decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: const Color(0xFFF5F8F9), borderRadius: BorderRadius.circular(14)),
       child: Stack(
         children: [
           Center(child: Icon(Icons.medication, size: 48, color: Colors.grey.shade400)),

@@ -7,17 +7,13 @@ import 'prescription_upload_sheet.dart';
 import 'widgets/prescription_progress_step.dart';
 import 'widgets/prescription_detail_sheet.dart';
 import 'widgets/prescription_refill_sheet.dart';
-import 'prescription_review_status.dart';
-import 'prescription_clarification.dart';
-import 'prescription_rejection.dart';
-import 'prescription_partial_approval.dart';
-import 'store_allocation_status.dart';
 
 class PrescriptionVault extends StatefulWidget {
   final String patientName;
+  final String? profileImagePath;
   final VoidCallback? onBack;
 
-  const PrescriptionVault({super.key, required this.patientName, this.onBack});
+  const PrescriptionVault({super.key, required this.patientName, this.profileImagePath, this.onBack});
 
   @override
   State<PrescriptionVault> createState() =>
@@ -42,8 +38,9 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF0FAFD),
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
           onPressed: _handleBack,
@@ -75,9 +72,9 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
   }
 
   Widget _tabs() => SizedBox(
-    height: 56,
+    height: 64,
     child: ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
       scrollDirection: Axis.horizontal,
       children: [
         _tabChip(0, 'Active Prescriptions', _hasActivePrescription ? '3' : '0'),
@@ -94,10 +91,10 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
       child: ChoiceChip(
         selected: selected,
         showCheckmark: false,
-        label: Text('${selected ? '✓ ' : ''}$label ($count)'),
+        label: Text('$label  $count'),
         labelStyle: TextStyle(
           color: selected ? Colors.white : AppTheme.textSecondary,
-          fontSize: 12,
+          fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
         selectedColor: AppTheme.primary,
@@ -128,66 +125,72 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
     ],
   );
 
-  Widget _emptyView() => Column(
-    children: [
-      const Spacer(),
-      Container(
-        width: 92,
-        height: 92,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFD1EFF6)),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.primary.withValues(alpha: .08),
-              blurRadius: 14,
+  Widget _emptyView() => LayoutBuilder(
+    builder: (context, constraints) => SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: constraints.maxHeight - 52),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 104,
+              height: 104,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(color: AppTheme.outlineBorder),
+                boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: .07), blurRadius: 20, offset: const Offset(0, 8))],
+              ),
+              child: const Icon(Icons.description_outlined, color: AppTheme.primary, size: 44),
+            ),
+            const SizedBox(height: 22),
+            const Text(
+              'Your prescriptions, all in one place',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 21, height: 1.2, fontWeight: FontWeight.bold, color: AppTheme.text),
+            ),
+            const SizedBox(height: 9),
+            const Text(
+              'Upload a prescription to get pharmacist support and manage refills securely.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, height: 1.45, color: AppTheme.mutedText),
+            ),
+            const SizedBox(height: 26),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _uploadPrescription,
+                icon: const Icon(Icons.add_a_photo_outlined),
+                label: const Text('Upload prescription'),
+                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 54)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const Search()),
+                ),
+                icon: const Icon(Icons.shopping_basket_outlined),
+                label: const Text('Browse OTC & wellness'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+              ),
+            ),
+            const SizedBox(height: 18),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.lock_outline, size: 15, color: AppTheme.mutedText),
+                SizedBox(width: 6),
+                Text('Your documents are stored securely', style: TextStyle(fontSize: 12, color: AppTheme.mutedText)),
+              ],
             ),
           ],
         ),
-        child: const Icon(
-          Icons.lock_outline,
-          color: AppTheme.primary,
-          size: 38,
-        ),
       ),
-      const SizedBox(height: 20),
-      const Text(
-        'No Prescriptions Upload Yet',
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: AppTheme.text,
-        ),
-      ),
-      const SizedBox(height: 42),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _uploadPrescription,
-            icon: const Icon(Icons.add_a_photo_outlined),
-            label: const Text('Upload New Prescription'),
-          ),
-        ),
-      ),
-      const Divider(height: 32, indent: 20, endIndent: 20),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const Search()),
-            ),
-            icon: const Icon(Icons.shopping_basket_outlined),
-            label: const Text('Browse OTC & Wellness Catalog'),
-          ),
-        ),
-      ),
-      const Spacer(flex: 2),
-    ],
+    ),
   );
 
   Future<void> _uploadPrescription() async {
@@ -198,6 +201,7 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
         builder: (_) => PrescriptionReview(
           file: file,
           patientName: widget.patientName,
+          profileImagePath: widget.profileImagePath,
         ),
       ),
     );
@@ -383,24 +387,16 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
   );
 
   Widget _archivedView() => ListView(
-    padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
     children: [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            'ARCHIVED DOCUMENTS',
-            style: TextStyle(
-              fontSize: 12,
-              color: AppTheme.textSecondary,
-              fontWeight: FontWeight.bold,
-              letterSpacing: .5,
-            ),
+          const Text(
+            'Past prescriptions',
+            style: TextStyle(fontSize: 17, color: AppTheme.text, fontWeight: FontWeight.w700),
           ),
-          Text(
-            'Showing ${_firstArchiveVisible ? 2 : 1} of 3 expired records',
-            style: TextStyle(fontSize: 10, color: AppTheme.textSecondary),
-          ),
+          _pill('${_firstArchiveVisible ? 2 : 1} records', Colors.white, AppTheme.textSecondary),
         ],
       ),
       const SizedBox(height: 14),
@@ -436,7 +432,7 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
     Color color, {
     bool first = false,
   }) => Container(
-    padding: const EdgeInsets.all(16),
+    padding: const EdgeInsets.all(18),
     decoration: _cardDecoration(),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -454,6 +450,8 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
                 children: [
                   Text(
                     name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -461,6 +459,8 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
                   ),
                   Text(
                     subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppTheme.textSecondary,
@@ -472,13 +472,14 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
           ],
         ),
         const Divider(height: 22),
-        Row(
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
           children: [
-            _pill('◴  $expiry', color.withValues(alpha: .13), color),
+            _pill(expiry, color.withValues(alpha: .13), color),
             if (first) ...[
-              const SizedBox(width: 8),
               _pill(
-                '0 Refills Left',
+                'No refills left',
                 const Color(0xFFFFE0DE),
                 Colors.red.shade700,
               ),
@@ -489,31 +490,37 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFFEAF9FD),
-            borderRadius: BorderRadius.circular(12),
+          color: const Color(0xFFEAF9FD),
+          borderRadius: BorderRadius.circular(15),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'MEDICATIONS PRESCRIBED',
-                style: TextStyle(fontSize: 10, color: AppTheme.textSecondary),
+              const Row(
+                children: [
+                  Icon(Icons.medication_outlined, color: AppTheme.primary, size: 17),
+                  SizedBox(width: 6),
+                  Text('Prescribed medicines', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary, fontWeight: FontWeight.w700)),
+                ],
               ),
               const SizedBox(height: 6),
               Text(
                 medicine,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                'ⓘ  $detail',
-                style: const TextStyle(
-                  fontSize: 10,
-                  color: AppTheme.textSecondary,
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.info_outline_rounded, size: 15, color: AppTheme.mutedText),
+                  const SizedBox(width: 6),
+                  Expanded(child: Text(detail, style: const TextStyle(fontSize: 11, height: 1.35, color: AppTheme.textSecondary))),
+                ],
               ),
             ],
           ),
@@ -522,31 +529,37 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
         if (first)
           Column(
             children: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _uploadPrescription,
+                  icon: const Icon(Icons.autorenew_rounded, size: 18),
+                  label: const Text('Renew prescription'),
+                ),
+              ),
+              const SizedBox(height: 4),
               Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: _uploadPrescription,
-                      icon: const Icon(Icons.autorenew, size: 16),
-                      label: const Text('Renew Prescription'),
+                    child: TextButton.icon(
+                      onPressed: _showDocument,
+                      icon: const Icon(Icons.visibility_outlined, size: 18),
+                      label: const Text('View document'),
                     ),
                   ),
-                  TextButton.icon(
-                    onPressed: _showDocument,
-                    icon: const Icon(Icons.visibility_outlined),
-                    label: const Text('View Old Document'),
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () => setState(() {
+                        _hasActivePrescription = true;
+                        _firstArchiveVisible = false;
+                        _hasArchivedPrescription = true;
+                        _tab = 0;
+                      }),
+                      icon: const Icon(Icons.unarchive_outlined, size: 18),
+                      label: const Text('Restore'),
+                    ),
                   ),
                 ],
-              ),
-              TextButton.icon(
-                onPressed: () => setState(() {
-                  _hasActivePrescription = true;
-                  _firstArchiveVisible = false;
-                  _hasArchivedPrescription = true;
-                  _tab = 0;
-                }),
-                icon: const Icon(Icons.unarchive_outlined),
-                label: const Text('Restore to Active Prescriptions'),
               ),
             ],
           )
@@ -555,13 +568,9 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Doctor consultation is not available yet'),
-                    ),
-                  ),
-                  icon: const Icon(Icons.medical_services_outlined, size: 16),
-                  label: const Text('1-Tap Doctor Consult'),
+                  onPressed: _showDocument,
+                  icon: const Icon(Icons.visibility_outlined, size: 16),
+                  label: const Text('View document'),
                 ),
               ),
               const SizedBox(width: 8),
@@ -569,7 +578,7 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
                 child: OutlinedButton.icon(
                   onPressed: _uploadPrescription,
                   icon: const Icon(Icons.upload_file, size: 16),
-                  label: const Text('Upload Fresh Rx'),
+                  label: const Text('Upload new'),
                 ),
               ),
             ],
@@ -578,99 +587,103 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
     ),
   );
 
-  Widget _underReviewView() => ListView(
-    padding: const EdgeInsets.all(16),
-    children: [
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: _cardDecoration(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _hasUnderReviewPrescription
-                  ? 'Prescription submitted • 1 page'
-                  : 'No prescriptions under review',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              _hasUnderReviewPrescription
-                  ? 'Uploaded just now • Review usually takes 30–45 minutes'
-                  : 'Upload a prescription to track its review here.',
-              style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-            ),
-            const SizedBox(height: 20),
-            const PrescriptionProgressStep(
-              icon: Icons.check,
-              title: 'Prescription Uploaded',
-              done: true,
-            ),
-            const PrescriptionProgressStep(
-              icon: Icons.medical_information_outlined,
-              title: 'Under Review',
-              active: true,
-            ),
-            const PrescriptionProgressStep(
-              icon: Icons.shopping_bag_outlined,
-              title: 'Medicines Added to Cart',
-            ),
-            const PrescriptionProgressStep(
-              icon: Icons.credit_card_outlined,
-              title: 'Order Ready for Payment',
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Prescription decision screens',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
+  Widget _underReviewView() {
+    if (!_hasUnderReviewPrescription) {
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(22, 28, 22, 24),
+            decoration: _cardDecoration(),
+            child: Column(
               children: [
-                _statusLink(
-                  'Review Breakdown',
-                  const PrescriptionReviewStatus(),
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: const Icon(Icons.fact_check_outlined, color: AppTheme.primary, size: 34),
                 ),
-                _statusLink(
-                  'Clarification Needed',
-                  const PrescriptionClarification(),
+                const SizedBox(height: 18),
+                const Text(
+                  'Nothing under review yet',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.text),
                 ),
-                _statusLink(
-                  'Rejected & Refund',
-                  const PrescriptionRejection(),
+                const SizedBox(height: 7),
+                const Text(
+                  'Upload a clear prescription and our pharmacy team will review it. You can follow its progress here.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, height: 1.45, color: AppTheme.mutedText),
                 ),
-                _statusLink(
-                  'Partial Approval',
-                  const PrescriptionPartialApproval(),
-                ),
-                _statusLink(
-                  'Store Reallocation',
-                  const StoreAllocationStatus(),
+                const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _uploadPrescription,
+                    icon: const Icon(Icons.upload_file_rounded),
+                    label: const Text('Upload prescription'),
+                  ),
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-      const SizedBox(height: 16),
-      _uploadPanel(),
-    ],
-  );
+          ),
+        ],
+      );
+    }
 
-  Widget _statusLink(String label, Widget screen) => ActionChip(
-    label: Text(label),
-    labelStyle: const TextStyle(
-      fontSize: 12,
-      color: AppTheme.primary,
-      fontWeight: FontWeight.w600,
-    ),
-    backgroundColor: const Color(0xFFDDF6FB),
-    side: BorderSide(color: AppTheme.primary.withValues(alpha: .3)),
-    onPressed: () => Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => screen)),
-  );
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: _cardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Prescription submitted', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.text)),
+                        const SizedBox(height: 4),
+                        Text('Uploaded just now · 1 page', style: TextStyle(fontSize: 12, color: AppTheme.mutedText)),
+                      ],
+                    ),
+                  ),
+                  _pill('IN REVIEW', AppTheme.infoBg, AppTheme.infoText),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                decoration: BoxDecoration(color: AppTheme.primaryContainer.withValues(alpha: .65), borderRadius: BorderRadius.circular(12)),
+                child: const Row(
+                  children: [
+                    Icon(Icons.schedule_rounded, size: 18, color: AppTheme.primary),
+                    SizedBox(width: 8),
+                    Expanded(child: Text('Most reviews are completed within 30–45 minutes', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary))),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 22),
+              const PrescriptionProgressStep(icon: Icons.check_rounded, title: 'Prescription uploaded', done: true),
+              const PrescriptionProgressStep(icon: Icons.medical_information_outlined, title: 'Pharmacist review', active: true),
+              const PrescriptionProgressStep(icon: Icons.shopping_bag_outlined, title: 'Medicines added to cart'),
+              const PrescriptionProgressStep(icon: Icons.credit_card_outlined, title: 'Ready for payment'),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        _uploadPanel(),
+      ],
+    );
+  }
 
   BoxDecoration _cardDecoration() => BoxDecoration(
     color: Colors.white,

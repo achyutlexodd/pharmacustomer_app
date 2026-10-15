@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/providers/cart_notifier.dart';
 import '../../core/theme.dart';
-import 'address_change.dart';
 import 'payment.dart';
 
 class DeliveryOptions extends StatefulWidget {
@@ -15,8 +14,11 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
   int selected = 0;
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppTheme.background,
     appBar: AppBar(
       title: const Text('Delivery Options'),
+      centerTitle: true,
+      toolbarHeight: 64,
       actions: const [
         Center(
           child: Padding(
@@ -27,36 +29,49 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
       ],
     ),
     body: ListView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: const LinearProgressIndicator(
             value: .66,
-            minHeight: 4,
+            minHeight: 6,
             backgroundColor: AppTheme.surfaceContainerDim,
           ),
         ),
-        const SizedBox(height: 18),
-        Card(
-          child: ListTile(
-            leading: Icon(Icons.location_on, color: AppTheme.primary),
-            title: Text('Delivering to: Flat 402, Bellandur'),
-            subtitle: const Text('Green Glen Layout · Bengaluru 560103'),
-            trailing: TextButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(builder: (_) => const AddressChange()),
+        const SizedBox(height: 24),
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppTheme.outlineBorder),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(color: AppTheme.surfaceLow, borderRadius: BorderRadius.circular(16)),
+                child: const Icon(Icons.location_on, color: AppTheme.primary),
               ),
-              child: const Text('Change'),
-            ),
+              const SizedBox(width: 14),
+              const Expanded(child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Delivering to: Flat 402, Bellandur', style: TextStyle(fontWeight: FontWeight.bold)),
+                  SizedBox(height: 4),
+                  Text('Green Glen Layout · Bengaluru 560103', style: TextStyle(color: AppTheme.mutedText)),
+                ],
+              )),
+            ],
           ),
         ),
         const Padding(
-          padding: EdgeInsets.symmetric(vertical: 18),
+          padding: EdgeInsets.only(top: 30, bottom: 18),
           child: Text(
             'Choose your delivery speed',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
           ),
         ),
         ...[
@@ -68,13 +83,13 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
           ),
         ].asMap().entries.map(
           (entry) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: 14),
             child: Stack(
               clipBehavior: Clip.none,
               children: [
                 Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(24),
                     side: BorderSide(
                       color: selected == entry.key
                           ? AppTheme.primary
@@ -83,15 +98,15 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
                     ),
                   ),
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(24),
                     onTap: () => setState(() => selected = entry.key),
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(18),
                       child: Row(
                         children: [
                           Container(
-                            width: 44,
-                            height: 44,
+                          width: 56,
+                          height: 56,
                             decoration: BoxDecoration(
                               color: AppTheme.surfaceLow,
                               borderRadius: BorderRadius.circular(13),
@@ -101,41 +116,22 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
                               color: AppTheme.primary,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
-                                    Expanded(
-                                      child: Text(
-                                        entry.value.$2,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
+                                    Text(entry.value.$2, style: const TextStyle(fontWeight: FontWeight.bold)),
                                     if (entry.key == 0)
                                       Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.successBg,
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          '22 mins',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: AppTheme.successText,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(color: AppTheme.successBg, borderRadius: BorderRadius.circular(12)),
+                                        child: const Text('22 mins', style: TextStyle(fontSize: 11, color: AppTheme.successText, fontWeight: FontWeight.bold)),
                                       ),
                                   ],
                                 ),
@@ -143,7 +139,7 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
                                 Text(
                                   entry.value.$3,
                                   style: const TextStyle(
-                                    fontSize: 12,
+                                  fontSize: 14,
                                     color: AppTheme.textSecondary,
                                     height: 1.3,
                                   ),
@@ -153,7 +149,7 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
                                   const Text(
                                     'Fastest option · Bellandur Hub (1.8 km)',
                                     style: TextStyle(
-                                      fontSize: 11,
+                                      fontSize: 13,
                                       color: AppTheme.mutedText,
                                     ),
                                   ),
@@ -203,18 +199,14 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
             ),
           ),
         ),
-        TextButton(
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(builder: (_) => const AddressChange()),
-          ),
-          child: const Text('View address change & serviceability'),
-        ),
       ],
     ),
     bottomNavigationBar: SafeArea(
-      minimum: const EdgeInsets.all(16),
-      child: Column(
+      minimum: const EdgeInsets.fromLTRB(18, 10, 18, 18),
+      child: Container(
+        color: AppTheme.background,
+        padding: const EdgeInsets.only(top: 8),
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Row(
@@ -228,7 +220,7 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
               Expanded(
                 child: Text(
                   'Insured medical courier transit',
-                  style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                  style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                 ),
               ),
               Text(
@@ -252,28 +244,42 @@ class _DeliveryOptionsState extends State<DeliveryOptions> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
+                  Flexible(
+                    child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         '₹${context.watch<CartNotifier>().totalPrice.toStringAsFixed(0)}',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const Text(
                         'Inclusive of all medical taxes',
                         style: TextStyle(
-                          fontSize: 10,
+                        fontSize: 11,
                           fontWeight: FontWeight.normal,
                         ),
                       ),
                     ],
                   ),
-                  const Text('Proceed to Payment   ➜'),
+                  ),
+                  const SizedBox(width: 8),
+                  const Flexible(
+                    child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(child: Text('Proceed to Payment', textAlign: TextAlign.right)),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward),
+                    ],
+                  ),
+                  ),
                 ],
               ),
             ),
           ),
         ],
+        ),
       ),
     ),
   );

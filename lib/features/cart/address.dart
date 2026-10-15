@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
+import '../../core/providers/profile_notifier.dart';
 import 'delivery_options.dart';
 
 class Address extends StatefulWidget {
@@ -30,9 +32,20 @@ class _AddressState extends State<Address> {
     ),
   ];
 
-  final _addresses = [..._initialAddresses];
+  late final List<({String label, String details, String eta})> _addresses;
   int _selected = 0;
   bool _currentLocation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final profile = context.read<ProfileNotifier>();
+    _addresses = [
+      (label: 'Home', details: profile.address.isNotEmpty ? profile.address : _initialAddresses[0].details, eta: _initialAddresses[0].eta),
+      (label: 'Work / Office', details: profile.workAddress, eta: _initialAddresses[1].eta),
+      (label: 'Parents’ Home', details: profile.parentsAddress, eta: _initialAddresses[2].eta),
+    ];
+  }
 
   String get _selectedLabel =>
       _currentLocation ? 'Current Location' : _addresses[_selected].label;
@@ -66,6 +79,7 @@ class _AddressState extends State<Address> {
       }
       _currentLocation = false;
     });
+    context.read<ProfileNotifier>().updateAddress(result.$1, result.$2);
   }
 
   @override

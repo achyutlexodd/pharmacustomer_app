@@ -56,7 +56,7 @@ class _OtpState extends State<Otp> {
       setState(() => hasError = false);
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const ProfileSetup()),
+        MaterialPageRoute(builder: (context) => ProfileSetup(phoneNumber: widget.phoneNumber ?? '')),
       );
     } else {
       setState(() => hasError = true);

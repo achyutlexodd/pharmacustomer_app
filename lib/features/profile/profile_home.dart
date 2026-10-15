@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
@@ -5,162 +7,164 @@ import '../orders/order_history.dart';
 import '../prescriptions/prescription_vault.dart';
 
 class ProfileHome extends StatelessWidget {
-  const ProfileHome({super.key, required this.name});
+  const ProfileHome({super.key, required this.name, required this.phoneNumber, required this.email, required this.address, required this.onEdit, this.profileImagePath});
   final String name;
+  final String phoneNumber;
+  final String email;
+  final String address;
+  final String? profileImagePath;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppTheme.background,
     appBar: AppBar(
       automaticallyImplyLeading: false,
-      title: const Text('HealthRx'),
+      title: const Text('PharmaCustomer'),
       actions: [
         IconButton(
+          tooltip: 'Notifications',
           onPressed: () {},
-          icon: const Icon(Icons.notifications_none),
+          icon: const Icon(Icons.notifications_none_rounded),
         ),
+        const SizedBox(width: 8),
       ],
     ),
     body: ListView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
       children: [
         _panel(
-          ListTile(
-            leading: const CircleAvatar(
-              radius: 27,
-              backgroundColor: AppTheme.surfaceLow,
-              child: Icon(Icons.person, color: AppTheme.primary, size: 30),
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.white, Color(0xFFF5FCFC)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
-            title: Text(
-              name.isEmpty ? 'Achyut' : name,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-            ),
-            subtitle: const Text('+91 7488882789'),
-            trailing: IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.edit_outlined, color: AppTheme.primary),
+            padding: const EdgeInsets.all(18),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppTheme.primary.withValues(alpha: .25), width: 2)),
+                  child: CircleAvatar(
+                    radius: 32,
+                    backgroundColor: AppTheme.surfaceLow,
+                    backgroundImage: profileImagePath == null ? null : FileImage(File(profileImagePath!)),
+                    child: profileImagePath == null ? const Icon(Icons.person_rounded, color: AppTheme.primary, size: 32) : null,
+                  ),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name.isEmpty ? 'Achyut' : name, maxLines: 1, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w700, color: AppTheme.text)),
+                      const SizedBox(height: 5),
+                      _ProfileDetail(icon: Icons.phone_outlined, text: phoneNumber.isEmpty ? 'Add phone number' : phoneNumber.startsWith('+') ? phoneNumber : '+91 $phoneNumber'),
+                      if (email.isNotEmpty) _ProfileDetail(icon: Icons.mail_outline_rounded, text: email),
+                      if (address.isNotEmpty) _ProfileDetail(icon: Icons.location_on_outlined, text: address),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Material(
+                  color: AppTheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(14),
+                  child: IconButton(
+                    tooltip: 'Edit profile',
+                    onPressed: onEdit,
+                    icon: const Icon(Icons.edit_outlined, color: AppTheme.primary, size: 20),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        const SizedBox(height: 22),
-        const Text(
-          'Medical Records & Conditions',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _panel(
-                const ListTile(
-                  leading: Icon(
-                    Icons.monitor_heart_outlined,
-                    color: AppTheme.primary,
-                  ),
-                  title: Text(
-                    'Chronic Condition',
-                    style: TextStyle(fontSize: 11),
-                  ),
-                  subtitle: Text(
-                    'Type 2 Diabetes',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
+        const SizedBox(height: 26),
+        const _SectionTitle('Your health', subtitle: 'Important details for safer care'),
+        const SizedBox(height: 12),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final cards = [
+              const _HealthCard(
+                icon: Icons.monitor_heart_outlined,
+                color: AppTheme.primary,
+                label: 'CHRONIC CONDITION',
+                value: 'Type 2 Diabetes',
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _panel(
-                const ListTile(
-                  leading: Icon(
-                    Icons.warning_amber_outlined,
-                    color: AppTheme.warningText,
-                  ),
-                  title: Text('Known Allergy', style: TextStyle(fontSize: 11)),
-                  subtitle: Text(
-                    'Penicillin sensitivity',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
+              const _HealthCard(
+                icon: Icons.warning_amber_rounded,
+                color: AppTheme.warningText,
+                label: 'KNOWN ALLERGY',
+                value: 'Penicillin sensitivity',
               ),
-            ),
-          ],
+            ];
+            if (constraints.maxWidth < 380) {
+              return Column(
+                children: [cards[0], const SizedBox(height: 10), cards[1]],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: cards[0]),
+                const SizedBox(width: 10),
+                Expanded(child: cards[1]),
+              ],
+            );
+          },
         ),
-        const SizedBox(height: 10),
-        _panel(
-          const ListTile(
-            leading: Icon(Icons.emergency_outlined, color: AppTheme.error),
-            title: Text('Emergency Contact'),
-            subtitle: Text('Dr. Mehta, Cardiologist · +91 94220 54321'),
-          ),
-        ),
-        const SizedBox(height: 22),
-        const Text(
-          'Account Management',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 26),
+        const _SectionTitle('Account', subtitle: 'Manage your care in one place'),
+        const SizedBox(height: 12),
         _panel(
           Column(
             children: [
-              ListTile(
-                leading: const Icon(
-                  Icons.people_outline,
-                  color: AppTheme.primary,
-                ),
-                title: const Text('Saved Patient Profiles'),
-                subtitle: const Text('Self, Mother, Spouse'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {},
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(
-                  Icons.description_outlined,
-                  color: AppTheme.primary,
-                ),
-                title: const Text('Prescription Vault'),
-                subtitle: const Text(
-                  'Digital copies signed by licensed clinics',
-                ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (_) =>
-                        const PrescriptionVault(patientName: 'Aditi Rao'),
-                  ),
-                ),
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(
-                  Icons.receipt_long_outlined,
-                  color: AppTheme.primary,
-                ),
-                title: const Text('Order History'),
-                subtitle: const Text('Invoices, tracking and refills'),
-                trailing: const Icon(Icons.chevron_right),
+              _AccountRow(
+                icon: Icons.people_outline,
+                title: 'Saved patient profiles',
+                subtitle: 'Self, Mother, Spouse',
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute<void>(builder: (_) => const OrderHistory()),
                 ),
               ),
-              const Divider(height: 1),
-              const ListTile(
-                leading: Icon(Icons.autorenew, color: AppTheme.primary),
-                title: Text('Auto-Refill Subscriptions'),
-                subtitle: Text('2 active · Next refill 12 June'),
-                trailing: Icon(Icons.chevron_right),
-              ),
-              const Divider(height: 1),
-              const ListTile(
-                leading: Icon(
-                  Icons.health_and_safety_outlined,
-                  color: AppTheme.primary,
+              const Divider(height: 1, indent: 64),
+              _AccountRow(
+                icon: Icons.description_outlined,
+                title: 'Prescription vault',
+                subtitle: 'Your digital prescriptions',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => PrescriptionVault(
+                      patientName: name,
+                      profileImagePath: profileImagePath,
+                    ),
+                  ),
                 ),
-                title: Text('Insurance & Corporate Subsidies'),
-                subtitle: Text('Star Health Allied · 80% cashless co-pay'),
-                trailing: Icon(Icons.chevron_right),
+              ),
+              const Divider(height: 1, indent: 64),
+              _AccountRow(
+                icon: Icons.receipt_long_outlined,
+                title: 'Order history',
+                subtitle: 'Invoices, tracking and refills',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(builder: (_) => const OrderHistory()),
+                ),
+              ),
+              const Divider(height: 1, indent: 64),
+              _AccountRow(
+                icon: Icons.autorenew_rounded,
+                title: 'Auto-refill subscriptions',
+                subtitle: '2 active · Next refill 12 June',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(builder: (_) => const OrderHistory()),
+                ),
               ),
             ],
           ),
@@ -170,12 +174,139 @@ class ProfileHome extends StatelessWidget {
   );
 }
 
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.title, {this.subtitle});
+  final String title;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(title, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w700, color: AppTheme.text)),
+      if (subtitle != null) ...[
+        const SizedBox(height: 3),
+        Text(subtitle!, style: const TextStyle(fontSize: 12, color: AppTheme.mutedText)),
+      ],
+    ],
+  );
+}
+
+class _ProfileDetail extends StatelessWidget {
+  const _ProfileDetail({required this.icon, required this.text});
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 3),
+    child: Row(
+      children: [
+        Icon(icon, size: 14, color: AppTheme.mutedText),
+        const SizedBox(width: 5),
+        Expanded(child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, color: AppTheme.mutedText))),
+      ],
+    ),
+  );
+}
+
+class _HealthCard extends StatelessWidget {
+  const _HealthCard({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.value,
+  });
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => _panel(
+    Container(
+      decoration: BoxDecoration(color: color.withValues(alpha: .045)),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(color: color.withValues(alpha: .1), borderRadius: BorderRadius.circular(13)),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.mutedText,
+                    letterSpacing: .5,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    height: 1.25,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _AccountRow extends StatelessWidget {
+  const _AccountRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.onTap,
+  });
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    minVerticalPadding: 15,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+    leading: Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(color: AppTheme.primaryContainer.withValues(alpha: .75), borderRadius: BorderRadius.circular(13)),
+      child: Icon(icon, color: AppTheme.primary, size: 21),
+    ),
+    title: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.text)),
+    subtitle: Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.mutedText)),
+    ),
+    trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.mutedText),
+    onTap: onTap,
+  );
+}
+
 Widget _panel(Widget child) => Material(
   color: Colors.white,
   shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(20),
+    borderRadius: BorderRadius.circular(24),
     side: const BorderSide(color: AppTheme.outlineBorder),
   ),
+  elevation: 0,
   clipBehavior: Clip.antiAlias,
   child: child,
 );

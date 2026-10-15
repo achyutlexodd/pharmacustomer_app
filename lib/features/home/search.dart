@@ -35,7 +35,7 @@ class _SearchState extends State<Search> {
     final query = _searchController.text.trim();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FCFC),
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -44,11 +44,12 @@ class _SearchState extends State<Search> {
           onPressed: widget.onBack ?? () => Navigator.pop(context),
         ),
         title: Container(
-          height: 44,
+          height: 48,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.teal.shade100),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.outlineBorder),
+            boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 3))],
           ),
           child: TextField(
             controller: _searchController,
@@ -141,33 +142,30 @@ class _SearchState extends State<Search> {
 
   Widget _buildBrowseCategoriesView() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(Icons.shield_outlined, color: AppTheme.primary, size: 18),
               SizedBox(width: 8),
-              Text(
-                'Browse by Health Concern',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: AppTheme.text,
-                ),
-              ),
+              Text('Browse by Health Concern', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 19)),
             ],
           ),
           const Padding(
             padding: EdgeInsets.only(left: 26.0, top: 2),
             child: Text(
               'Find certified prescription & OTC medicines',
-              style: TextStyle(color: Colors.grey, fontSize: 12),
+              style: TextStyle(color: AppTheme.mutedText, fontSize: 13),
             ),
           ),
-          const SizedBox(height: 16),
-          GestureDetector(
+          const SizedBox(height: 20),
+          Material(
+            color: const Color(0xFFE7F6F4),
+            borderRadius: BorderRadius.circular(22),
+            child: InkWell(
+            borderRadius: BorderRadius.circular(22),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -179,16 +177,15 @@ class _SearchState extends State<Search> {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.teal.shade50.withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.teal.shade100),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
               ),
               child: Column(
                 children: [
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.teal.shade100,
                           shape: BoxShape.circle,
@@ -207,42 +204,42 @@ class _SearchState extends State<Search> {
                               'Diabetes Care',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: 19,
                                 color: AppTheme.text,
                               ),
                             ),
                             Text(
                               'Insulin, Metformin, strips & monitors',
                               style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 12,
+                                color: AppTheme.mutedText,
+                                fontSize: 13,
                               ),
                             ),
                           ],
                         ),
                       ),
                       const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16,
-                        color: Colors.grey,
+                        Icons.chevron_right,
+                        size: 24,
+                        color: AppTheme.mutedText,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 18),
                   Row(
                     children: [
-                      _chip('Metformin 500mg'),
-                      const SizedBox(width: 6),
-                      _chip('Glimepiride'),
-                      const SizedBox(width: 6),
-                      _chip('Vildagliptin'),
-                      const Spacer(),
-                      const Text(
-                        '140+ Items',
-                        style: TextStyle(
-                          color: AppTheme.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              _chip('Metformin 500mg'),
+                              const SizedBox(width: 6),
+                              _chip('Glimepiride'),
+                              const SizedBox(width: 6),
+                              _chip('Vildagliptin'),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -250,16 +247,20 @@ class _SearchState extends State<Search> {
                 ],
               ),
             ),
+            ),
           ),
-          const SizedBox(height: 8),
-          GridView.count(
-            crossAxisCount: 2,
+          const SizedBox(height: 14),
+          GridView.builder(
+            itemCount: 6,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 0.95,
-            children: [
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              mainAxisExtent: 174,
+            ),
+            itemBuilder: (context, index) => [
               _buildCategoryCard(
                 'Heart & BP',
                 'Statins, monitors & ACE',
@@ -302,7 +303,7 @@ class _SearchState extends State<Search> {
                 Icons.show_chart,
                 Colors.teal,
               ),
-            ],
+            ][index],
           ),
         ],
       ),
@@ -311,14 +312,14 @@ class _SearchState extends State<Search> {
 
   Widget _chip(String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 10, color: Colors.black87),
+        style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
       ),
     );
   }
@@ -330,53 +331,55 @@ class _SearchState extends State<Search> {
     IconData icon,
     Color color,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
+    return Semantics(
+      button: true,
+      label: '$title, $count',
+      child: Material(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: color, size: 20),
-              ),
-              Text(
-                count,
-                style: const TextStyle(
-                  color: AppTheme.primary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
-            ],
+        borderRadius: BorderRadius.circular(22),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => CategoryDetail(categoryName: title)),
           ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: AppTheme.text,
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: AppTheme.outlineBorder),
+              boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.035), blurRadius: 12, offset: const Offset(0, 3))],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Icon(icon, color: color, size: 23),
+                    ),
+                    Flexible(
+                      child: Text(count, textAlign: TextAlign.end,
+                        style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700, fontSize: 11)),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Text(title, maxLines: 1, overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppTheme.text)),
+                const SizedBox(height: 5),
+                Text(subtitle, style: const TextStyle(color: AppTheme.mutedText, fontSize: 11), maxLines: 2, overflow: TextOverflow.ellipsis),
+              ],
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: const TextStyle(color: Colors.grey, fontSize: 11),
-            maxLines: 2,
-          ),
-        ],
+        ),
       ),
     );
   }

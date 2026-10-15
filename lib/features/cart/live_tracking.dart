@@ -13,42 +13,38 @@ class LiveTracking extends StatelessWidget {
   Widget build(BuildContext context) {
     final cart = context.watch<CartNotifier>();
     return Scaffold(
+      backgroundColor: const Color(0xFFE4F3F5),
       body: Stack(
         children: [
           const Positioned.fill(child: CustomPaint(painter: _MapPainter())),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               child: Column(
                 children: [
                   Row(
                     children: [
                       CircleAvatar(
                         backgroundColor: Colors.white,
+                        radius: 25,
                         child: IconButton(
                           onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.arrow_back),
+                          tooltip: 'Back',
+                          icon: const Icon(Icons.arrow_back, color: AppTheme.primary),
                         ),
                       ),
                       const SizedBox(width: 12),
                       const Expanded(
-                        child: Chip(
-                          avatar: Icon(
-                            Icons.circle,
-                            size: 12,
-                            color: AppTheme.primary,
-                          ),
-                          label: Text('On the Way · Out for Delivery'),
-                        ),
+                        child: _TrackingStatus(),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
                     decoration: BoxDecoration(
                       color: const Color(0xFF17383F),
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: const [
                         BoxShadow(color: Colors.black26, blurRadius: 12),
                       ],
@@ -95,6 +91,7 @@ class LiveTracking extends StatelessWidget {
                   ),
                   const Spacer(),
                   Container(
+                    constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * .67),
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -103,12 +100,13 @@ class LiveTracking extends StatelessWidget {
                         BoxShadow(color: Colors.black12, blurRadius: 16),
                       ],
                     ),
+                    child: SingleChildScrollView(
                     child: Column(
                       children: [
                         Row(
                           children: [
                             const CircleAvatar(
-                              radius: 26,
+                              radius: 32,
                               backgroundColor: AppTheme.surfaceLow,
                               child: Icon(
                                 Icons.person,
@@ -128,7 +126,7 @@ class LiveTracking extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    'AuraCare Express · Hero Electric',
+                                    'pharmaCustomer Express · Hero Electric',
                                     style: TextStyle(color: AppTheme.mutedText),
                                   ),
                                 ],
@@ -174,7 +172,7 @@ class LiveTracking extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: AppTheme.surfaceLow,
+                              color: const Color(0xFFE0F7FC),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: const Row(
@@ -192,7 +190,7 @@ class LiveTracking extends StatelessWidget {
                                       Text(
                                         'DELIVERY ADDRESS · HOME',
                                         style: TextStyle(
-                                          fontSize: 10,
+                                  fontSize: 11,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -244,7 +242,7 @@ class LiveTracking extends StatelessWidget {
                                 '8492',
                                 style: TextStyle(
                                   color: Color(0xFF8AE2E8),
-                                  fontSize: 24,
+                                  fontSize: 30,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 2,
                                 ),
@@ -278,6 +276,7 @@ class LiveTracking extends StatelessWidget {
                         ),
                       ],
                     ),
+                    ),
                   ),
                 ],
               ),
@@ -290,6 +289,30 @@ class LiveTracking extends StatelessWidget {
 
   void _message(BuildContext context, String text) =>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+}
+
+class _TrackingStatus extends StatelessWidget {
+  const _TrackingStatus();
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: const Color(0xFFD1E6EB)),
+        ),
+        child: const Row(
+          children: [
+            Icon(Icons.circle, size: 12, color: AppTheme.primary),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text('On the way · Out for delivery',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+            ),
+          ],
+        ),
+      );
 }
 
 class _MapPainter extends CustomPainter {
@@ -309,7 +332,7 @@ class _MapPainter extends CustomPainter {
     for (var i = -2; i < 7; i++) {
       final path = Path()
         ..moveTo(i * 90.0, 0)
-        ..lineTo(i * 90.0 + 80, size.height * .55);
+        ..lineTo(i * 90.0 + 80, size.height);
       canvas.drawPath(path, road);
       canvas.drawPath(path, fineRoad);
     }
@@ -322,17 +345,16 @@ class _MapPainter extends CustomPainter {
       route,
       Paint()
         ..color = AppTheme.primary
-        ..strokeWidth = 5
+        ..strokeWidth = 7
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round,
     );
-    for (final point in [
-      Offset(size.width * .25, size.height * .28),
-      Offset(size.width * .58, size.height * .60),
-    ]) {
-      canvas.drawCircle(point, 11, Paint()..color = Colors.white);
-      canvas.drawCircle(point, 7, Paint()..color = AppTheme.primary);
-    }
+    final pin = Offset(size.width * .25, size.height * .28);
+    canvas.drawCircle(pin, 17, Paint()..color = Colors.white);
+    canvas.drawCircle(pin, 11, Paint()..color = AppTheme.primary);
+    final destination = Offset(size.width * .58, size.height * .60);
+    canvas.drawCircle(destination, 8, Paint()..color = Colors.white);
+    canvas.drawCircle(destination, 4, Paint()..color = AppTheme.primary);
   }
 
   @override

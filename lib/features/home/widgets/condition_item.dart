@@ -20,7 +20,10 @@ class ConditionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      label: label,
+      child: GestureDetector(
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => CategoryDetail(categoryName: categoryName)),
@@ -29,12 +32,12 @@ class ConditionItem extends StatelessWidget {
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 150),
-            width: 54,
-            height: 54,
+            width: 58,
+            height: 58,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade200),
+              borderRadius: BorderRadius.circular(19),
+              border: Border.all(color: AppTheme.outlineBorder),
               boxShadow: [
                 BoxShadow(color: iconColor.withValues(alpha: 0.12), blurRadius: 8, offset: const Offset(0, 3)),
               ],
@@ -43,8 +46,10 @@ class ConditionItem extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(label,
+              maxLines: 1,
               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppTheme.text)),
         ],
+      ),
       ),
     );
   }

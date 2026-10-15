@@ -16,6 +16,8 @@ class SplitShipmentTracking extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),
+        centerTitle: true,
+        toolbarHeight: 72,
         title: const Column(
           children: [
             Text(
@@ -27,7 +29,7 @@ class SplitShipmentTracking extends StatelessWidget {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         children: [
           _card(
             Column(
@@ -59,7 +61,7 @@ class SplitShipmentTracking extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           _shipment(
             'Shipment 1 of 2',
             'MedPlus Pharmacy #04',
@@ -70,7 +72,7 @@ class SplitShipmentTracking extends StatelessWidget {
             'Ramesh Kumar · Bike DL 04 AB 1234',
             true,
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           _shipment(
             'Shipment 2 of 2',
             'Apollo Pharmacy #12',
@@ -83,7 +85,7 @@ class SplitShipmentTracking extends StatelessWidget {
             'Assigning nearby courier partner',
             false,
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           _card(
             const ListTile(
               leading: Icon(
@@ -116,27 +118,42 @@ Widget _shipment(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           ),
-          Chip(
-            label: Text(status, style: const TextStyle(fontSize: 10)),
-            backgroundColor: active ? AppTheme.successBg : AppTheme.warningBg,
+          const SizedBox(width: 8),
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+              decoration: BoxDecoration(
+                color: active ? AppTheme.successBg : AppTheme.warningBg,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(status, textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600,
+                    color: active ? AppTheme.successText : AppTheme.warningText)),
+            ),
           ),
         ],
       ),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: const Icon(Icons.storefront_outlined, color: AppTheme.primary),
-        title: Text(store, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(detail),
+      const SizedBox(height: 18),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(padding: EdgeInsets.only(top: 2), child: Icon(Icons.storefront_outlined, color: AppTheme.primary, size: 25)),
+          const SizedBox(width: 14),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(store, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 3),
+            Text(detail, style: const TextStyle(color: AppTheme.mutedText)),
+          ])),
+        ],
       ),
+      const SizedBox(height: 16),
       Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
         decoration: BoxDecoration(
           color: AppTheme.background,
           borderRadius: BorderRadius.circular(14),
@@ -145,12 +162,7 @@ Widget _shipment(
           children: [
             const Icon(Icons.medication_outlined, color: AppTheme.primary),
             const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                medicine,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
+            Expanded(child: Text(medicine, style: const TextStyle(fontWeight: FontWeight.w600))),
             Text(
               '₹${price.toStringAsFixed(2)}',
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -158,18 +170,28 @@ Widget _shipment(
           ],
         ),
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: 16),
+      Row(
+        children: [
+          Text(active ? 'Delivery progress' : 'Preparation progress', style: const TextStyle(fontSize: 12, color: AppTheme.mutedText)),
+          const Spacer(),
+          Text(active ? 'On the way' : 'In preparation', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: active ? AppTheme.primary : AppTheme.warningText)),
+        ],
+      ),
+      const SizedBox(height: 8),
       LinearProgressIndicator(
         value: active ? .75 : .35,
         color: active ? AppTheme.primary : AppTheme.warningText,
         backgroundColor: AppTheme.surfaceLow,
+        minHeight: 6,
+        borderRadius: BorderRadius.circular(8),
       ),
       const SizedBox(height: 10),
       Row(
         children: [
           const Icon(Icons.person_pin_circle_outlined, color: AppTheme.primary),
           const SizedBox(width: 8),
-          Expanded(child: Text(courier, style: const TextStyle(fontSize: 12))),
+          Expanded(child: Text(courier, style: const TextStyle(fontSize: 13))),
           if (active)
             IconButton(onPressed: () {}, icon: const Icon(Icons.call_outlined)),
         ],
@@ -179,10 +201,10 @@ Widget _shipment(
 );
 
 Widget _card(Widget child) => Container(
-  padding: const EdgeInsets.all(16),
+  padding: const EdgeInsets.all(20),
   decoration: BoxDecoration(
     color: Colors.white,
-    borderRadius: BorderRadius.circular(18),
+    borderRadius: BorderRadius.circular(24),
     border: Border.all(color: AppTheme.outlineBorder),
     boxShadow: const [
       BoxShadow(color: Color(0x08000000), blurRadius: 10, offset: Offset(0, 3)),

@@ -46,7 +46,7 @@ class _ClinicalSupportState extends State<ClinicalSupport> {
       title: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('AuraCare Clinical Support'),
+          Text('pharmaCustomer Clinical Support'),
           Text(
             '● Online · Lead Pharmacist on Duty',
             style: TextStyle(fontSize: 11, color: AppTheme.primary),

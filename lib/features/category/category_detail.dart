@@ -41,7 +41,7 @@ class _CategoryDetailState extends State<CategoryDetail>
     final count = await showModalBottomSheet<int>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF6FAFB),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => FilterSortSheet(totalItems: 48, categoryName: widget.categoryName),
     );
@@ -59,7 +59,7 @@ class _CategoryDetailState extends State<CategoryDetail>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.background,
       appBar: _buildAppBar(),
       body: TabBarView(
         controller: _tabController,
@@ -76,7 +76,7 @@ class _CategoryDetailState extends State<CategoryDetail>
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.background,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: const BackButton(color: AppTheme.text),
@@ -90,27 +90,22 @@ class _CategoryDetailState extends State<CategoryDetail>
         IconButton(icon: const Icon(Icons.share_outlined, color: AppTheme.text), onPressed: () {}),
       ],
       bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(48),
-        child: Column(
-          children: [
-            TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              labelColor: Colors.white,
-              unselectedLabelColor: AppTheme.text,
-              dividerColor: Colors.transparent,
-              indicator: BoxDecoration(
-                color: AppTheme.primary,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              indicatorSize: TabBarIndicatorSize.label,
-              labelPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              tabs: _tabs.map((t) => Tab(child: _TabPill(label: t))).toList(),
-            ),
-            const Divider(height: 1, thickness: 1, color: Color(0xFFE5E7EB)),
-          ],
+        preferredSize: const Size.fromHeight(56),
+        child: TabBar(
+          controller: _tabController,
+          isScrollable: false,
+          labelColor: Colors.white,
+          unselectedLabelColor: AppTheme.text,
+          dividerColor: Colors.transparent,
+          indicator: BoxDecoration(
+            color: AppTheme.primary,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicatorPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+          labelPadding: EdgeInsets.zero,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          tabs: _tabs.map((t) => Tab(child: _TabPill(label: t))).toList(),
         ),
       ),
     );
@@ -123,8 +118,8 @@ class _TabPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
       );
 }
 
@@ -141,7 +136,7 @@ class _AllTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+      padding: const EdgeInsets.fromLTRB(18, 22, 18, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -154,11 +149,11 @@ class _AllTab extends StatelessWidget {
           const SizedBox(height: 12),
           MedicineListCard(
             name: 'Glycomet-GP 2 Forte',
-            description: 'Metformin (1000mg) + Glimepiride (...',
+            description: 'Metformin 1000mg + Glimepiride 2mg',
             price: '₹148.50',
             mrp: '₹175.00',
             discount: '15% OFF',
-            badge: 'Req Required',
+            badge: 'Rx required',
             requiresPrescription: true,
             tag: 'Strip of 15 tablets',
             onTap: onMedicineTap,
@@ -170,7 +165,7 @@ class _AllTab extends StatelessWidget {
             price: '₹572.00',
             mrp: '₹635.00',
             discount: '10% OFF',
-            badge: 'Req Required',
+            badge: 'Rx required',
             requiresPrescription: true,
             tag: 'Strip of 10 tablets',
             onTap: onMedicineTap,
@@ -184,9 +179,10 @@ class _AllTab extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: const [
-                    Text('Monitoring Devices & Strips',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.text)),
-                    Text('Clinical precision at home • No Rx required',
+                    Text('Monitoring devices & strips',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: AppTheme.text)),
+                    SizedBox(height: 3),
+                    Text('Reliable tools for everyday monitoring',
                         style: TextStyle(color: AppTheme.mutedText, fontSize: 12)),
                   ],
                 ),
@@ -199,13 +195,17 @@ class _AllTab extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          GridView.count(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final tileWidth = (constraints.maxWidth - 12) / 2;
+              final tileHeight = (tileWidth / 0.58).clamp(296.0, double.infinity);
+              return GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            childAspectRatio: 0.55,
+            childAspectRatio: tileWidth / tileHeight,
             children: [
               DeviceGridCard(
                 name: 'Accu-Chek Active Glucometer Kit',
@@ -248,6 +248,8 @@ class _AllTab extends StatelessWidget {
                 onTap: onCgmTap,
               ),
             ],
+          );
+            },
           ),
         ],
       ),

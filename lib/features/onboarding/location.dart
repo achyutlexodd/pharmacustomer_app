@@ -7,7 +7,10 @@ import '../home/main_nav_wrapper.dart';
 
 class Location extends StatefulWidget {
   final String name;
-  const Location({super.key, required this.name});
+  final String phoneNumber;
+  final String email;
+  final String? profileImagePath;
+  const Location({super.key, required this.name, this.phoneNumber = '', this.email = '', this.profileImagePath});
 
   @override
   State<Location> createState() => _LocationState();
@@ -19,6 +22,16 @@ class _LocationState extends State<Location> {
   final TextEditingController _landmarkController = TextEditingController();
   String? _selectedCity;
   bool _isDetecting = false;
+
+  Future<void> _selectCity() async {
+    final city = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _CityPicker(cities: _cities, selected: _selectedCity),
+    );
+    if (city != null) setState(() => _selectedCity = city);
+  }
 
   static const List<String> _cities = [
     'Delhi', 'Mumbai', 'Bangalore', 'Hyderabad',
@@ -86,7 +99,13 @@ class _LocationState extends State<Location> {
     }
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => MainNavWrapper(name: widget.name, location: '${_addressController.text.trim()}, ${_selectedCity!}')),
+      MaterialPageRoute(builder: (_) => MainNavWrapper(
+        name: widget.name,
+        phoneNumber: widget.phoneNumber,
+        email: widget.email,
+        location: '${_addressController.text.trim()}, ${_selectedCity!}',
+        profileImagePath: widget.profileImagePath,
+      )),
       (route) => false,
     );
   }
@@ -100,20 +119,21 @@ class _LocationState extends State<Location> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.fromLTRB(22, 20, 22, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Header ───────────────────────────────────────────────────
-              Text('Where should we\ndeliver?',
-                  style: Theme.of(context).textTheme.displaySmall),
-              const SizedBox(height: 8),
+              Text('Where should we deliver?',
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 27, height: 1.16, letterSpacing: -0.7)),
+              const SizedBox(height: 7),
+              Text('Add an address for a smooth delivery.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14)),
+              const SizedBox(height: 22),
 
-              // ── Auto-detect button ───────────────────────────────────────
               _DetectLocationButton(isDetecting: _isDetecting, onTap: _detectLocation),
-              const SizedBox(height: 24),
+              const SizedBox(height: 22),
 
-              // ── Divider ──────────────────────────────────────────────────
               Row(children: [
                 const Expanded(child: Divider()),
                 Padding(
@@ -123,72 +143,64 @@ class _LocationState extends State<Location> {
                 ),
                 const Expanded(child: Divider()),
               ]),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // ── Pincode ──────────────────────────────────────────────────
-              _label(context, 'Pincode *'),
+              _label(context, 'Pincode', required: true),
               TextField(
                 controller: _pincodeController,
                 keyboardType: TextInputType.number,
                 maxLength: 6,
                 decoration: const InputDecoration(
-                  hintText: '6-digit pincode',
+                  hintText: 'Enter 6-digit pincode',
                   prefixIcon: Icon(Icons.pin_drop_outlined),
                   counterText: '',
+                  prefixIconColor: AppTheme.mutedText,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
 
-              // ── City ─────────────────────────────────────────────────────
-              _label(context, 'City *'),
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCity,
-                hint: const Text('Select city'),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppTheme.outlineBorder),
+              _label(context, 'City', required: true),
+              Semantics(
+                button: true,
+                label: 'City, ${_selectedCity ?? 'Select city'}',
+                child: InkWell(
+                  onTap: _selectCity,
+                  borderRadius: BorderRadius.circular(14),
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.location_city_outlined),
+                      prefixIconColor: AppTheme.mutedText,
+                    ),
+                    child: Row(children: [
+                      Expanded(child: Text(_selectedCity ?? 'Select city', style: TextStyle(color: _selectedCity == null ? AppTheme.textDisabled : AppTheme.text))),
+                      const Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.mutedText),
+                    ]),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppTheme.outlineBorder),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
-                items: _cities
-                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                    .toList(),
-                onChanged: (v) => setState(() => _selectedCity = v),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
 
-              // ── Address ──────────────────────────────────────────────────
-              _label(context, 'Flat / House / Street *'),
+              _label(context, 'Flat / house / street', required: true),
               TextField(
                 controller: _addressController,
-                maxLines: 2,
                 decoration: const InputDecoration(
                   hintText: 'Enter flat no., building, street name',
-                  prefixIcon: Padding(
-                    padding: EdgeInsets.only(bottom: 20),
-                    child: Icon(Icons.home_outlined),
-                  ),
+                  prefixIcon: Icon(Icons.home_outlined),
+                  prefixIconColor: AppTheme.mutedText,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
 
-              // ── Landmark ─────────────────────────────────────────────────
-              _label(context, 'Landmark (Optional)'),
+              _label(context, 'Landmark', optional: true),
               TextField(
                 controller: _landmarkController,
                 decoration: const InputDecoration(
                   hintText: 'Near school, park, metro station…',
                   prefixIcon: Icon(Icons.place_outlined),
+                  prefixIconColor: AppTheme.mutedText,
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 26),
 
               ElevatedButton(
                 onPressed: _continue,
@@ -208,10 +220,84 @@ class _LocationState extends State<Location> {
     );
   }
 
-  Widget _label(BuildContext context, String text) => Padding(
+  Widget _label(BuildContext context, String text, {bool required = false, bool optional = false}) => Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: Text(text, style: Theme.of(context).textTheme.titleSmall),
+        child: Row(children: [
+          Text(text, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 14, fontWeight: FontWeight.w700)),
+          if (required) const Text(' *', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700)),
+          if (optional) const Padding(padding: EdgeInsets.only(left: 6), child: Text('OPTIONAL', style: TextStyle(color: AppTheme.mutedText, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: .5))),
+        ]),
       );
+}
+
+class _CityPicker extends StatefulWidget {
+  const _CityPicker({required this.cities, required this.selected});
+
+  final List<String> cities;
+  final String? selected;
+
+  @override
+  State<_CityPicker> createState() => _CityPickerState();
+}
+
+class _CityPickerState extends State<_CityPicker> {
+  String _query = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final cities = widget.cities
+        .where((city) => city.toLowerCase().contains(_query.toLowerCase()))
+        .toList();
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: Material(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        clipBehavior: Clip.antiAlias,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(22, 12, 22, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(width: 38, height: 4, decoration: BoxDecoration(color: AppTheme.outlineBorder, borderRadius: BorderRadius.circular(4))),
+                const SizedBox(height: 20),
+                Row(children: [
+                  Expanded(child: Text('Choose your city', style: Theme.of(context).textTheme.headlineSmall)),
+                  IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close), tooltip: 'Close'),
+                ]),
+                const SizedBox(height: 8),
+                TextField(
+                  autofocus: true,
+                  onChanged: (value) => setState(() => _query = value.trim()),
+                  decoration: const InputDecoration(hintText: 'Search city', prefixIcon: Icon(Icons.search)),
+                ),
+                const SizedBox(height: 10),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * .42),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: cities.length,
+                    itemBuilder: (context, index) {
+                      final city = cities[index];
+                      final selected = city == widget.selected;
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                        title: Text(city, style: TextStyle(fontWeight: selected ? FontWeight.w700 : FontWeight.w500)),
+                        trailing: selected ? const Icon(Icons.check_circle, color: AppTheme.primary) : null,
+                        onTap: () => Navigator.pop(context, city),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 // ── Detect location button ────────────────────────────────────────────────────

@@ -10,7 +10,7 @@ class PaymentStatusRecovery extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('HealthRx · AuraCare'),
+      title: const Text('HealthRx · pharmaCustomer'),
       actions: const [
         Padding(padding: EdgeInsets.all(16), child: Text('🔒 256-BIT SYNC')),
       ],

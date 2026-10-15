@@ -16,25 +16,36 @@ class _OrderHistoryState extends State<OrderHistory> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    backgroundColor: AppTheme.background,
     appBar: AppBar(
+      centerTitle: true,
       title: const Text('Order History'),
       actions: [
-        TextButton(
-          onPressed: () {},
-          child: Text('${orderIds.toSet().length} Orders'),
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: Center(
+            child: Text('${orderIds.toSet().length} orders',
+              style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700, fontSize: 13)),
+          ),
         ),
       ],
     ),
     body: ListView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
       children: [
         const TextField(
+          textInputAction: TextInputAction.search,
           decoration: InputDecoration(
-            prefixIcon: Icon(Icons.search),
+            prefixIcon: Icon(Icons.search, color: AppTheme.primary),
             hintText: 'Search medicine, order ID, or doctor...',
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: EdgeInsets.symmetric(vertical: 16),
+            border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(16)), borderSide: BorderSide(color: AppTheme.outlineBorder)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(16)), borderSide: BorderSide(color: AppTheme.outlineBorder)),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 18),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -46,8 +57,10 @@ class _OrderHistoryState extends State<OrderHistory> {
                       label: Text(value),
                       selected: filter == value,
                       onSelected: (_) => setState(() => filter = value),
-                      backgroundColor: AppTheme.mutedBg,
-                      selectedColor: AppTheme.primaryContainer,
+                      backgroundColor: Colors.white,
+                      selectedColor: Colors.white,
+                      showCheckmark: false,
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       labelStyle: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -66,7 +79,7 @@ class _OrderHistoryState extends State<OrderHistory> {
                 .toList(),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 18),
         _OrderCard(
           id: orderIds[0],
           status: 'Delivered Today · 2:45 PM',
@@ -89,22 +102,30 @@ class _OrderHistoryState extends State<OrderHistory> {
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.warningBg.withValues(alpha: 0.58),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppTheme.outlineBorder),
+            border: Border.all(color: AppTheme.warningText.withValues(alpha: 0.18)),
           ),
           child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '◷  Prescription Refill Scheduled',
-                style: TextStyle(
-                  color: AppTheme.warningText,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [
+                  Icon(Icons.autorenew_rounded, color: AppTheme.warningText, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Prescription refill scheduled',
+                      style: TextStyle(
+                        color: AppTheme.warningText,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 8),
-              Text('Rosuvastatin Calcium 10mg · 30 Day Cycle'),
+              Text('Rosuvastatin Calcium 10mg · 30 day cycle', style: TextStyle(fontWeight: FontWeight.w600)),
               Text(
                 'Refills automatically on 28 Aug',
                 style: TextStyle(color: AppTheme.textSecondary),
@@ -131,17 +152,17 @@ class _OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(16),
+    padding: const EdgeInsets.all(18),
     clipBehavior: Clip.antiAlias,
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(22),
       border: Border.all(color: AppTheme.outlineBorder),
-      boxShadow: const [
+      boxShadow: [
         BoxShadow(
-          color: Color(0x08000000),
-          blurRadius: 12,
-          offset: Offset(0, 4),
+          color: AppTheme.primary.withValues(alpha: 0.045),
+          blurRadius: 16,
+          offset: const Offset(0, 5),
         ),
       ],
     ),
@@ -151,41 +172,56 @@ class _OrderCard extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: Text(
-                '●  $status',
-                style: const TextStyle(
-                  color: AppTheme.successText,
-                  fontWeight: FontWeight.w600,
-                ),
+              child: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: AppTheme.successText, size: 17),
+                  const SizedBox(width: 7),
+                  Expanded(child: Text(status,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: AppTheme.successText, fontWeight: FontWeight.w700, fontSize: 14),
+                  )),
+                ],
               ),
             ),
+            const SizedBox(width: 8),
             Text(
               total,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: AppTheme.text),
             ),
           ],
         ),
-        const SizedBox(height: 6),
-        Text(
-          'ID: $id',
-          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+        const SizedBox(height: 7),
+        Row(
+          children: [
+            const Icon(Icons.tag, size: 15, color: AppTheme.mutedText),
+            const SizedBox(width: 4),
+            Text(
+              id,
+              style: const TextStyle(color: AppTheme.mutedText, fontSize: 12, fontWeight: FontWeight.w500),
+            ),
+          ],
         ),
-        const Divider(height: 22),
+        const Divider(height: 24),
         ...items.map(
           (item) => Padding(
-            padding: const EdgeInsets.only(bottom: 9),
+            padding: const EdgeInsets.only(bottom: 11),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.circle, size: 7, color: AppTheme.primary),
-                const SizedBox(width: 8),
+                const Padding(
+                  padding: EdgeInsets.only(top: 5),
+                  child: Icon(Icons.circle, size: 7, color: AppTheme.primary),
+                ),
+                const SizedBox(width: 10),
                 Expanded(
-                  child: Text(item, style: const TextStyle(fontSize: 13)),
+                  child: Text(item, style: const TextStyle(fontSize: 13, height: 1.35, color: AppTheme.textSecondary)),
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 5),
         Row(
           children: [
             Expanded(
@@ -194,31 +230,34 @@ class _OrderCard extends StatelessWidget {
                   context,
                   MaterialPageRoute<void>(builder: (_) => const TaxInvoice()),
                 ),
-                icon: const Icon(Icons.description_outlined),
+                icon: const Icon(Icons.description_outlined, size: 19),
                 label: const Text('Invoice'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(0, 46), padding: const EdgeInsets.symmetric(horizontal: 8)),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute<void>(builder: (_) => const LiveTracking()),
                 ),
-                icon: const Icon(Icons.history),
-                label: const Text('Track Details'),
+                icon: const Icon(Icons.route_outlined, size: 19),
+                label: const Text('Track order'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(0, 46), padding: const EdgeInsets.symmetric(horizontal: 8)),
               ),
             ),
           ],
         ),
         if (primary) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {},
-              icon: const Icon(Icons.replay),
-              label: const Text('Reorder in 1-Tap'),
+              icon: const Icon(Icons.replay_rounded, size: 19),
+              label: const Text('Reorder'),
+              style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 48)),
             ),
           ),
         ],

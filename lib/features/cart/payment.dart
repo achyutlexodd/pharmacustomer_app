@@ -17,6 +17,7 @@ class Payment extends StatefulWidget {
 
 class _PaymentState extends State<Payment> {
   String method = 'UPI';
+  String? upiApp;
   bool applied = false;
 
   @override
@@ -24,37 +25,35 @@ class _PaymentState extends State<Payment> {
     final total = context.watch<CartNotifier>().totalPrice;
     final payable = (total - (applied ? 50 : 0)).clamp(0, total).toDouble();
     return Scaffold(
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text('Payment Options'),
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('● AuraPay', style: TextStyle(color: AppTheme.primary)),
-          ),
-        ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
         children: [
           _panel(
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '🛡  Rx Subsidy Applied · Total Savings ₹161',
-                  style: TextStyle(
-                    color: AppTheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                  decoration: BoxDecoration(color: AppTheme.surfaceLow, borderRadius: BorderRadius.circular(14)),
+                  child: const Row(children: [
+                    Icon(Icons.verified_outlined, color: AppTheme.primary, size: 19),
+                    SizedBox(width: 8),
+                    Expanded(child: Text('subsidy applied · You save ₹161', style: TextStyle(color: AppTheme.primaryDark, fontWeight: FontWeight.w700))),
+                  ]),
                 ),
-                const Divider(height: 24),
+                const Divider(height: 28),
                 const Text(
                   'TO PAY',
-                  style: TextStyle(fontSize: 11, color: AppTheme.mutedText),
+                  style: TextStyle(fontSize: 12, color: AppTheme.mutedText, letterSpacing: .5),
                 ),
                 Row(
                   children: [
@@ -62,7 +61,7 @@ class _PaymentState extends State<Payment> {
                       child: Text(
                         '₹${payable.toStringAsFixed(0)}',
                         style: const TextStyle(
-                          fontSize: 27,
+                          fontSize: 34,
                           fontWeight: FontWeight.bold,
                           color: AppTheme.primaryDark,
                         ),
@@ -80,25 +79,18 @@ class _PaymentState extends State<Payment> {
             ),
           ),
           const SizedBox(height: 22),
-          const Text(
-            '⚡  Recommended / Fastest',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          const Row(children: [
+            Icon(Icons.bolt, color: AppTheme.deliveryYellow, size: 22),
+            SizedBox(width: 8),
+            Text('Recommended · Fastest', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ],
           ),
           const SizedBox(height: 10),
           _panel(
             Column(
               children: [
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Rx Subsidy Applied · Total Savings ₹161',
-                    style: TextStyle(
-                      color: AppTheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const Divider(height: 22),
+                const Align(alignment: Alignment.centerLeft, child: Text('Pay with UPI', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold))),
+                const SizedBox(height: 14),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -106,19 +98,22 @@ class _PaymentState extends State<Payment> {
                       .map(
                         (name) => ChoiceChip(
                           label: Text(name),
-                          selected: method == name,
-                          onSelected: (_) => setState(() => method = name),
+                          selected: upiApp == name,
+                          onSelected: (_) => setState(() {
+                            upiApp = name;
+                            method = 'UPI';
+                          }),
                           backgroundColor: AppTheme.mutedBg,
                           selectedColor: AppTheme.primaryContainer,
                           labelStyle: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: method == name
+                            color: upiApp == name
                                 ? AppTheme.primary
                                 : AppTheme.textSecondary,
                           ),
                           side: BorderSide(
-                            color: method == name
+                            color: upiApp == name
                                 ? AppTheme.primary
                                 : AppTheme.outlineBorder,
                           ),
@@ -128,13 +123,19 @@ class _PaymentState extends State<Payment> {
                 ),
                 const SizedBox(height: 14),
                 TextField(
+                  onTap: () => setState(() => method = 'UPI'),
                   decoration: const InputDecoration(
                     hintText: 'Enter direct UPI ID / VPA',
                     suffixIcon: Icon(Icons.alternate_email),
                   ),
                   onChanged: (_) => setState(() => method = 'UPI'),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 18),
+                const Divider(),
+                const Align(alignment: Alignment.centerLeft, child: Padding(
+                  padding: EdgeInsets.only(top: 8, bottom: 4),
+                  child: Text('Other payment methods', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                )),
                 RadioGroup<String>(
                   groupValue: method,
                   onChanged: (value) => setState(() => method = value!),
@@ -143,13 +144,13 @@ class _PaymentState extends State<Payment> {
                       _methodTile(
                         'Credit / Debit Card',
                         Icons.credit_card,
-                        'Cards saved securely',
+                        'Saved securely for quick checkout',
                         'Card',
                       ),
                       _methodTile(
                         'Net Banking',
                         Icons.account_balance,
-                        'All major Indian banks',
+                        'Choose from major Indian banks',
                         'Net Banking',
                       ),
                       _methodTile(
@@ -186,7 +187,7 @@ class _PaymentState extends State<Payment> {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(18, 8, 18, 18),
           child: ElevatedButton.icon(
             onPressed: () => Navigator.push(
               context,
@@ -233,9 +234,9 @@ class _PaymentState extends State<Payment> {
 Widget _panel(Widget child) => Material(
   color: Colors.white,
   shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(20),
+    borderRadius: BorderRadius.circular(24),
     side: const BorderSide(color: AppTheme.outlineBorder),
   ),
   clipBehavior: Clip.antiAlias,
-  child: Padding(padding: const EdgeInsets.all(16), child: child),
+  child: Padding(padding: const EdgeInsets.all(20), child: child),
 );

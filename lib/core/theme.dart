@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
@@ -79,9 +80,14 @@ class AppTheme {
       fontFamily: GoogleFonts.dmSans().fontFamily,
       // ── AppBar ──────────────────────────────────────────────────────────────
       appBarTheme: AppBarTheme(
-        backgroundColor: Colors.white,
+        backgroundColor: background,
         elevation: 0,
         scrolledUnderElevation: 0,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: background,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
         iconTheme: const IconThemeData(color: text),
         actionsIconTheme: const IconThemeData(color: text),
         titleTextStyle: GoogleFonts.dmSans(
@@ -94,7 +100,7 @@ class AppTheme {
       ),
       // ── Bottom Nav ──────────────────────────────────────────────────────────
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: Colors.white,
+        backgroundColor: background,
         selectedItemColor: primary,
         unselectedItemColor: mutedText,
         selectedLabelStyle: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w600),

@@ -1,20 +1,30 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/providers/cart_notifier.dart';
+import '../../core/providers/profile_notifier.dart';
 import 'home.dart';
 import 'search.dart';
 import '../prescriptions/prescription_vault.dart';
 import '../orders/order_history.dart';
 import '../profile/profile_home.dart';
+import '../profile/profile_edit.dart';
 
 class MainNavWrapper extends StatefulWidget {
   final String name;
+  final String phoneNumber;
+  final String email;
   final String location;
+  final String? profileImagePath;
   const MainNavWrapper({
     super.key,
     required this.name,
+    this.phoneNumber = '',
+    this.email = '',
     this.location = 'Set delivery location',
+    this.profileImagePath,
   });
 
   @override
@@ -23,22 +33,72 @@ class MainNavWrapper extends StatefulWidget {
 
 class _MainNavWrapperState extends State<MainNavWrapper> {
   int _currentIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    final profile = context.read<ProfileNotifier>();
+    profile.initialize(
+      name: widget.name,
+      phoneNumber: widget.phoneNumber,
+      email: widget.email,
+      address: widget.location,
+      workAddress: profile.workAddress,
+      parentsAddress: profile.parentsAddress,
+      profileImagePath: widget.profileImagePath,
+    );
+  }
+
+  Future<void> _editProfile() async {
+    final profile = context.read<ProfileNotifier>();
+    final updated = await Navigator.push<ProfileDetails>(
+      context,
+      MaterialPageRoute(builder: (_) => ProfileEdit(details: ProfileDetails(
+        name: profile.name,
+        phoneNumber: profile.phoneNumber,
+        email: profile.email,
+        address: profile.address,
+        workAddress: profile.workAddress,
+        parentsAddress: profile.parentsAddress,
+        profileImagePath: profile.profileImagePath,
+      ))),
+    );
+    if (updated != null && mounted) {
+      context.read<ProfileNotifier>().update(
+        name: updated.name,
+        phoneNumber: updated.phoneNumber,
+        email: updated.email,
+        address: updated.address,
+        workAddress: updated.workAddress,
+        parentsAddress: updated.parentsAddress,
+        profileImagePath: updated.profileImagePath,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final profile = context.watch<ProfileNotifier>();
     // IndexedStack preserves scroll + state across tab switches
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          Home(name: widget.name, location: widget.location),
+          Home(name: profile.name, location: profile.address, profileImagePath: profile.profileImagePath),
           Search(onBack: () => setState(() => _currentIndex = 0)),
           const OrderHistory(),
           PrescriptionVault(
-            patientName: widget.name,
+            patientName: profile.name,
+            profileImagePath: profile.profileImagePath,
             onBack: () => setState(() => _currentIndex = 0),
           ),
-          ProfileHome(name: widget.name),
+          ProfileHome(
+            name: profile.name,
+            phoneNumber: profile.phoneNumber,
+            email: profile.email,
+            address: profile.address,
+            profileImagePath: profile.profileImagePath,
+            onEdit: _editProfile,
+          ),
         ],
       ),
       bottomNavigationBar: Consumer<CartNotifier>(
@@ -66,8 +126,10 @@ class _MainNavWrapperState extends State<MainNavWrapper> {
               icon: Icon(Icons.description_outlined),
               label: 'Prescriptions',
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
+            BottomNavigationBarItem(
+              icon: profile.profileImagePath == null
+                  ? const Icon(Icons.person_outline)
+                  : CircleAvatar(radius: 12, backgroundImage: FileImage(File(profile.profileImagePath!))),
               label: 'Profile',
             ),
           ],

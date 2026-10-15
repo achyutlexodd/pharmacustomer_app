@@ -288,14 +288,15 @@ class Cart extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
+                  Expanded(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           '₹${cart.totalPrice.toStringAsFixed(0)}',
                           style: const TextStyle(fontSize: 17),
-                        ),
+                          ),
                         const Text(
                           'Inclusive of applicable taxes',
                           style: TextStyle(
@@ -305,7 +306,14 @@ class Cart extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const Text('Proceed to Checkout   →'),
+                    ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'Proceed to Checkout  →',
+                      textAlign: TextAlign.end,
+                    ),
+                  ),
                   ],
                 ),
               ),

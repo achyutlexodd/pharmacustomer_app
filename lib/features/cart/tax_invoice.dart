@@ -41,7 +41,7 @@ class TaxInvoice extends StatelessWidget {
             children: [
               const Center(
                 child: Text(
-                  'AuraCare',
+                  'pharmaCustomer',
                   style: TextStyle(
                     fontSize: 19,
                     fontWeight: FontWeight.bold,
@@ -51,7 +51,7 @@ class TaxInvoice extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               const Text(
-                'AuraCare Retail & Specialty Pharmacy Pvt Ltd',
+                'pharmaCustomer Retail & Specialty Pharmacy Pvt Ltd',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const Text(

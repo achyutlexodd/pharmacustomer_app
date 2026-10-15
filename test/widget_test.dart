@@ -6,6 +6,6 @@ void main() {
   testWidgets('App smoke test — renders without crashing', (WidgetTester tester) async {
     await tester.pumpWidget(const App());
     // SplashScreen should be the first thing rendered.
-    expect(find.text('AuraCare'), findsOneWidget);
+    expect(find.text('pharmaCustomer'), findsOneWidget);
   });
 }

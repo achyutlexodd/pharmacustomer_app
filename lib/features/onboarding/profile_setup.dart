@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../core/theme.dart';
 import 'location.dart';
 
 class ProfileSetup extends StatefulWidget {
-  const ProfileSetup({super.key});
+  const ProfileSetup({super.key, this.phoneNumber = ''});
+  final String phoneNumber;
 
   @override
   State<ProfileSetup> createState() => _ProfileSetupState();
@@ -14,7 +18,15 @@ class _ProfileSetupState extends State<ProfileSetup> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  XFile? _profileImage;
   String? _selectedGender;
+  late String _phoneNumber;
+
+  @override
+  void initState() {
+    super.initState();
+    _phoneNumber = widget.phoneNumber;
+  }
 
   static const List<String> _genders = ['Female', 'Male', 'Other', 'Prefer not to say'];
 
@@ -39,6 +51,11 @@ class _ProfileSetupState extends State<ProfileSetup> {
             '${picked.day.toString().padLeft(2, '0')} / ${picked.month.toString().padLeft(2, '0')} / ${picked.year}';
       });
     }
+  }
+
+  Future<void> _selectProfileImage() async {
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (image != null && mounted) setState(() => _profileImage = image);
   }
 
   @override
@@ -67,14 +84,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
               const SizedBox(height: 32),
               Center(
                 child: GestureDetector(
-                  onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Photo upload coming soon'),
-                      backgroundColor: AppTheme.primary,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
+                  onTap: _selectProfileImage,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -88,8 +98,16 @@ class _ProfileSetupState extends State<ProfileSetup> {
                               color: Colors.white,
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.teal.withValues(alpha: 0.2), width: 4),
+                              image: _profileImage == null
+                                  ? null
+                                  : DecorationImage(
+                                      image: FileImage(File(_profileImage!.path)),
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
-                            child: const Icon(Icons.person_outline, size: 48, color: AppTheme.primary),
+                            child: _profileImage == null
+                                ? const Icon(Icons.person_outline, size: 48, color: AppTheme.primary)
+                                : null,
                           ),
                           Container(
                             padding: const EdgeInsets.all(8),
@@ -175,7 +193,12 @@ class _ProfileSetupState extends State<ProfileSetup> {
                   }
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => Location(name: name)),
+                    MaterialPageRoute(builder: (_) => Location(
+                      name: name,
+                      phoneNumber: _phoneNumber,
+                      email: _emailController.text.trim(),
+                      profileImagePath: _profileImage?.path,
+                    )),
                   );
                 },
                 child: const Row(

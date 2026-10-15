@@ -12,24 +12,23 @@ class SourcingSolutionCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
-          children: [
-            Icon(Icons.check_circle_outline,
-                color: AppTheme.primary, size: 18),
-            SizedBox(width: 6),
-            Text('Sourcing Solutions Available',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: AppTheme.text)),
-          ],
+        const Padding(
+          padding: EdgeInsets.only(left: 2),
+          child: Text('Available from another hub',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                  color: AppTheme.text)),
         ),
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: AppTheme.outlineBorder),
+            boxShadow: const [
+              BoxShadow(color: Color(0x10087F8C), blurRadius: 18, offset: Offset(0, 6)),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,17 +60,19 @@ class SourcingSolutionCard extends StatelessWidget {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: const BoxDecoration(
           color: AppTheme.primaryContainer,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: const Row(
           children: [
-            Icon(Icons.bolt, color: AppTheme.primary, size: 16),
+            Icon(Icons.local_shipping_outlined, color: AppTheme.primary, size: 16),
             SizedBox(width: 6),
-            Text('Guaranteed Delivery by Tomorrow, 10:00 AM',
+            Expanded(child: Text('DELIVERY SLOT  ·  TOMORROW, 10:00 AM',
                 style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                    color: AppTheme.primary)),
+                    fontSize: 11,
+                    letterSpacing: 0.25,
+                    color: AppTheme.primary,
+                    overflow: TextOverflow.ellipsis))),
           ],
         ),
       );
@@ -79,14 +80,14 @@ class SourcingSolutionCard extends StatelessWidget {
   Widget _productRow() => Row(
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: 76,
+            height: 76,
             decoration: BoxDecoration(
               color: AppTheme.primaryContainer,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.sensors,
-                color: AppTheme.primary, size: 36),
+                color: AppTheme.primary, size: 42),
           ),
           const SizedBox(width: 12),
           const Expanded(
@@ -94,39 +95,32 @@ class SourcingSolutionCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('FreeStyle Libre Sensor Kit',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                        fontSize: 15,
                         color: AppTheme.text)),
-                Text('Continuous Glucose Monitor • 1 Sensor Unit',
+                Text('Continuous glucose monitor • 1 sensor unit',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                        fontSize: 11, color: AppTheme.mutedText)),
+                        fontSize: 12, color: AppTheme.mutedText)),
                 SizedBox(height: 4),
                 Row(
                   children: [
                     Icon(Icons.store_outlined,
                         size: 12, color: AppTheme.mutedText),
                     SizedBox(width: 4),
-                    Text('Sourced from Central State Hub',
+                    Expanded(child: Text('Sourced from Central State Hub',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                            fontSize: 11, color: AppTheme.mutedText)),
+                            fontSize: 11, color: AppTheme.mutedText))),
                   ],
                 ),
               ],
             ),
-          ),
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-            decoration: BoxDecoration(
-              color: AppTheme.mutedBg,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: const Text('14-Day',
-                style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.mutedText)),
           ),
         ],
       );
@@ -159,7 +153,7 @@ class SourcingSolutionCard extends StatelessWidget {
           child: ElevatedButton.icon(
             onPressed: () => pickPrescription(context),
             icon: const Icon(Icons.local_shipping_outlined, size: 16),
-            label: const Text('Order for Tomorrow, 10 AM',
+            label: const Text('Order · delivery tomorrow by 10 AM',
                 style: TextStyle(fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(0, 48),

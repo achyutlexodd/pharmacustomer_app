@@ -30,105 +30,40 @@ class _NoStockCardState extends State<NoStockCard> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.outlineBorder),
+        color: const Color(0xFFFFF7ED),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFED7AA)),
       ),
-      child: Column(
+      child: Row(
         children: [
-          Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(Icons.sensors, size: 48, color: AppTheme.primary),
-              ),
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                child: const Icon(Icons.access_time, color: Colors.white, size: 14),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'No Stock in Your Dark-Store\nCluster',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.text),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'This item is temporarily out of stock at your nearest hub.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: AppTheme.mutedText),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: _notified
-                      ? Container(
-                          key: const ValueKey('notified'),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color: AppTheme.successBg,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppTheme.successText.withValues(alpha: 0.4)),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.check_circle, color: AppTheme.successText, size: 18),
-                              SizedBox(width: 8),
-                              Text('Notification Set!',
-                                  style: TextStyle(
-                                      color: AppTheme.successText,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14)),
-                            ],
-                          ),
-                        )
-                      : ElevatedButton.icon(
-                          key: const ValueKey('notify'),
-                          onPressed: _onNotifyTap,
-                          icon: const Icon(Icons.notifications_outlined, size: 16),
-                          label: const Text('Notify Me When Available',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(double.infinity, 48),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                        ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Sourcing from nearby stores…'),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: AppTheme.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
+          const Icon(Icons.info_outline, color: Color(0xFFB45309), size: 22),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Unavailable at your nearby hub',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppTheme.text)),
+                SizedBox(height: 2),
+                Text('We found another way to get it to you.',
+                    style: TextStyle(fontSize: 12, color: AppTheme.mutedText)),
+              ],
             ),
-            icon: const Icon(Icons.store_outlined, size: 16),
-            label: const Text('Check Nearby Stores'),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 44),
-              side: const BorderSide(color: AppTheme.outlineBorder),
-              foregroundColor: AppTheme.text,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
+          ),
+          const SizedBox(width: 8),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: _notified
+                ? const Icon(Icons.check_circle, key: ValueKey('notified'), color: AppTheme.successText, size: 22)
+                : IconButton(
+                    key: const ValueKey('notify'),
+                    onPressed: _onNotifyTap,
+                    tooltip: 'Notify me when available',
+                    visualDensity: VisualDensity.compact,
+                    icon: const Icon(Icons.notifications_active_outlined, color: AppTheme.primary),
+                  ),
           ),
         ],
       ),

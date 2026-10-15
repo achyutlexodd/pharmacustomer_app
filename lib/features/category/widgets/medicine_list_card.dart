@@ -44,43 +44,49 @@ class MedicineListCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.outlineBorder),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.outlineBorder.withValues(alpha: .8)),
+          boxShadow: [BoxShadow(color: AppTheme.text.withValues(alpha: .035), blurRadius: 12, offset: const Offset(0, 4))],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _MedicineIcon(tag: tag),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _MedicineInfo(
-                    badge: badge,
-                    name: name,
-                    description: description,
-                    tag: tag,
-                  ),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+            const _MedicineIcon(),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _MedicineInfo(
+                      badge: badge,
+                      name: name,
+                      description: description,
+                      tag: tag,
+                      requiresPrescription: requiresPrescription,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(child: _PriceRow(price: price, mrp: mrp, discount: discount)),
+                        const SizedBox(width: 10),
+                        _CartControl(cartId: _cartId, name: name, pack: tag ?? '', price: _parsedPrice),
+                      ],
+                    ),
+                    if (deliveryNote != null) ...[
+                      const SizedBox(height: 6),
+                      Text(deliveryNote!, style: const TextStyle(fontSize: 11, color: AppTheme.mutedText)),
+                    ],
+                  ],
                 ),
-              ],
+              ),
             ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _PriceRow(price: price, mrp: mrp, discount: discount),
-                _CartControl(cartId: _cartId, name: name, pack: tag ?? '', price: _parsedPrice),
-              ],
-            ),
-            if (deliveryNote != null) ...[
-              const SizedBox(height: 6),
-              Text(deliveryNote!, style: const TextStyle(fontSize: 11, color: AppTheme.mutedText)),
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -108,11 +114,11 @@ class _CartControl extends StatelessWidget {
               CartItem(id: cartId, name: name, pack: pack, price: price),
             ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.primaryContainer,
-          foregroundColor: AppTheme.primary,
+          backgroundColor: AppTheme.primary,
+          foregroundColor: Colors.white,
           elevation: 0,
-          minimumSize: const Size(80, 36),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          minimumSize: const Size(84, 40),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         child: const Text('+ Add', style: TextStyle(fontWeight: FontWeight.bold)),
       );
@@ -152,30 +158,15 @@ class _CartControl extends StatelessWidget {
 // ── Private sub-widgets ───────────────────────────────────────────────────────
 
 class _MedicineIcon extends StatelessWidget {
-  final String? tag;
-  const _MedicineIcon({this.tag});
+  const _MedicineIcon();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 70,
-      height: 70,
-      decoration: BoxDecoration(color: AppTheme.primaryContainer, borderRadius: BorderRadius.circular(12)),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          const Icon(Icons.medication, color: AppTheme.primary, size: 34),
-          if (tag != null)
-            Positioned(
-              bottom: 4,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                decoration: BoxDecoration(color: Colors.white70, borderRadius: BorderRadius.circular(4)),
-                child: Text(tag!, style: const TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: AppTheme.text)),
-              ),
-            ),
-        ],
-      ),
+      width: 82,
+      alignment: Alignment.center,
+      color: AppTheme.primaryContainer,
+      child: const Icon(Icons.medication_outlined, color: AppTheme.primary, size: 31),
     );
   }
 }
@@ -185,24 +176,29 @@ class _MedicineInfo extends StatelessWidget {
   final String name;
   final String description;
   final String? tag;
-  const _MedicineInfo({required this.badge, required this.name, required this.description, this.tag});
+  final bool requiresPrescription;
+  const _MedicineInfo({required this.badge, required this.name, required this.description, required this.requiresPrescription, this.tag});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (tag != null) Text(tag!, style: const TextStyle(fontSize: 10, color: AppTheme.mutedText)),
-        const SizedBox(height: 2),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(color: AppTheme.errorBg, borderRadius: BorderRadius.circular(4)),
-          child: Text(badge, style: const TextStyle(fontSize: 10, color: AppTheme.error, fontWeight: FontWeight.bold)),
+        Row(
+          children: [
+            Expanded(child: Text(tag ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, color: AppTheme.mutedText))),
+            if (requiresPrescription)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                decoration: BoxDecoration(color: AppTheme.errorBg, borderRadius: BorderRadius.circular(7)),
+                child: Text(badge, style: const TextStyle(fontSize: 9, color: AppTheme.error, fontWeight: FontWeight.w700)),
+              ),
+          ],
         ),
         const SizedBox(height: 4),
-        Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppTheme.text)),
+        Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppTheme.text)),
         const SizedBox(height: 2),
-        Text(description, style: const TextStyle(color: AppTheme.mutedText, fontSize: 11)),
+        Text(description, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppTheme.mutedText, fontSize: 11)),
       ],
     );
   }
@@ -215,15 +211,16 @@ class _PriceRow extends StatelessWidget {
   const _PriceRow({required this.price, required this.mrp, required this.discount});
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.text)),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+        Flexible(child: Text(price, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.text))),
         const SizedBox(width: 6),
-        Text(mrp, style: const TextStyle(decoration: TextDecoration.lineThrough, color: AppTheme.mutedText, fontSize: 12)),
-        const SizedBox(width: 6),
-        Text(discount, style: const TextStyle(color: AppTheme.successText, fontWeight: FontWeight.bold, fontSize: 12)),
-      ],
-    );
-  }
+        Text(discount, style: const TextStyle(color: AppTheme.successText, fontWeight: FontWeight.w700, fontSize: 11)),
+      ]),
+      const SizedBox(height: 3),
+      Text(mrp, style: const TextStyle(decoration: TextDecoration.lineThrough, color: AppTheme.mutedText, fontSize: 11)),
+    ],
+  );
 }

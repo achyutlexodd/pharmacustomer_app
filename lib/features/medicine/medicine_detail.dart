@@ -39,7 +39,7 @@ class MedicineDetail extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.background,
       elevation: 0,
       leading: const BackButton(color: AppTheme.text),
       title: const Text('Medicine Details',
@@ -62,7 +62,7 @@ class MedicineDetail extends StatelessWidget {
 
   Widget _buildBottomBar(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: AppTheme.outlineBorder)),
@@ -83,14 +83,14 @@ class MedicineDetail extends StatelessWidget {
                       Text('₹${medicine.price}',
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontSize: 16,
                               color: AppTheme.text)),
                       SizedBox(width: 6),
                       Text('₹${medicine.mrp}',
                           style: TextStyle(
                               decoration: TextDecoration.lineThrough,
                               color: AppTheme.mutedText,
-                              fontSize: 12)),
+                              fontSize: 10)),
                     ],
                   ),
                 ],
@@ -107,10 +107,10 @@ class MedicineDetail extends StatelessWidget {
                       ),
                     ),
                     icon: const Icon(Icons.upload_file, size: 16),
-                    label: const Text('Upload Prescription & Order',
+                    label: const Text('Upload prescription',
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                     style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(0, 48),
+                      minimumSize: const Size(0, 50),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
@@ -126,7 +126,7 @@ class MedicineDetail extends StatelessWidget {
                   size: 12, color: AppTheme.mutedText),
               SizedBox(width: 4),
               Text(
-                  '100% Genuine Medicine • Verified Pharmacy Network',
+                  'Genuine medicine • Verified pharmacy',
                   style: TextStyle(
                       fontSize: 10, color: AppTheme.mutedText)),
             ],

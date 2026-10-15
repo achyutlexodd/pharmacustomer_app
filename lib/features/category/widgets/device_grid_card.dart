@@ -41,20 +41,21 @@ class DeviceGridCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.outlineBorder),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppTheme.outlineBorder.withValues(alpha: .8)),
+          boxShadow: [BoxShadow(color: AppTheme.text.withValues(alpha: .035), blurRadius: 12, offset: const Offset(0, 4))],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _DeviceImageSection(discountBadge: discountBadge, rating: rating, reviewCount: reviewCount),
             Padding(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.text)),
+                  Text(name, maxLines: 2, overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, height: 1.25, color: AppTheme.text)),
                   const SizedBox(height: 2),
                   Text(description,
                       style: const TextStyle(color: AppTheme.mutedText, fontSize: 10),
@@ -101,8 +102,8 @@ class _DeviceCartButton extends StatelessWidget {
           label: const Text('Add to Cart', style: TextStyle(fontSize: 12)),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primary,
-            minimumSize: const Size(0, 36),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            minimumSize: const Size(0, 40),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
       );
@@ -151,7 +152,7 @@ class _DeviceImageSection extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          height: 110,
+          height: 88,
           width: double.infinity,
           decoration: const BoxDecoration(
             color: AppTheme.primaryContainer,
@@ -163,7 +164,7 @@ class _DeviceImageSection extends StatelessWidget {
           top: 8, left: 8,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-            decoration: BoxDecoration(color: Colors.red.shade400, borderRadius: BorderRadius.circular(6)),
+            decoration: BoxDecoration(color: AppTheme.error, borderRadius: BorderRadius.circular(8)),
             child: Text(discountBadge,
                 style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
           ),

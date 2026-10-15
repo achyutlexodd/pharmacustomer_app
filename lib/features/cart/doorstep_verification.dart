@@ -41,7 +41,7 @@ class DoorstepVerification extends StatelessWidget {
                   'Ramesh Kumar',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text('Verified AuraCare Fleet Partner'),
+                subtitle: Text('Verified pharmaCustomer Fleet Partner'),
                 trailing: Icon(Icons.call_outlined, color: AppTheme.primary),
               ),
               const SizedBox(height: 8),

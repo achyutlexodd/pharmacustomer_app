@@ -30,7 +30,9 @@ class MedicineHeroCard extends StatelessWidget {
                 _packTag(),
                 const SizedBox(height: 10),
                 Text(medicine.name,
-                    style: TextStyle(
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 22,
                         color: AppTheme.text)),
@@ -50,14 +52,23 @@ class MedicineHeroCard extends StatelessWidget {
   }
 
   Widget _imagePlaceholder() => Container(
-        height: 180,
+        height: 150,
         width: double.infinity,
         decoration: const BoxDecoration(
           color: AppTheme.primaryContainer,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
-        child: const Center(
-            child: Icon(Icons.medication, size: 72, color: AppTheme.primary)),
+        child: Center(
+          child: Container(
+            width: 104,
+            height: 104,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.72),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: const Icon(Icons.medication, size: 54, color: AppTheme.primary),
+          ),
+        ),
       );
 
   Widget _packTag() => Container(

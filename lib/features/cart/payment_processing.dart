@@ -59,7 +59,7 @@ class PaymentProcessing extends StatelessWidget {
                   style: TextStyle(fontSize: 11, color: AppTheme.mutedText),
                 ),
                 const Text(
-                  'AuraCare Health Technologies Ltd.',
+                  'pharmaCustomer Health Technologies Ltd.',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),

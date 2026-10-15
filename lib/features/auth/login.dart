@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/theme.dart';
 import '../../core/constants/app_strings.dart';
@@ -22,7 +23,7 @@ class _LoginState extends State<Login> {
 
   void _submit() {
     final phone = _phoneController.text.trim();
-    if (phone.isEmpty) return;
+    if (phone.length != 10) return;
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Otp(phoneNumber: phone)),
@@ -102,10 +103,16 @@ class _LoginState extends State<Login> {
                         Expanded(
                           child: TextField(
                             controller: _phoneController,
-                            keyboardType: TextInputType.phone,
+                            keyboardType: TextInputType.number,
+                            maxLength: 10,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),
+                            ],
                             decoration: const InputDecoration(
                               hintText: 'Enter mobile number',
                               suffixIcon: Icon(Icons.phone, color: AppTheme.primary),
+                              counterText: '',
                             ),
                             onSubmitted: (_) => _submit(),
                           ),
@@ -113,11 +120,15 @@ class _LoginState extends State<Login> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    const Row(
+                    const Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
                       children: [
                         Icon(Icons.info_outline, size: 16, color: AppTheme.primary),
-                        SizedBox(width: 8),
-                        Text("We'll send a 6-digit verification code via SMS", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        Text(
+                          "We'll send a 6-digit verification code via SMS",
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
                       ],
                     ),
                   ],

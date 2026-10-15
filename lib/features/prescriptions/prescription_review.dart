@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -20,11 +21,13 @@ const _kThumbnailH = 88.0;
 class PrescriptionReview extends StatefulWidget {
   final PlatformFile file;
   final String patientName;
+  final String? profileImagePath;
 
   const PrescriptionReview({
     super.key,
     required this.file,
     required this.patientName,
+    this.profileImagePath,
   });
 
   @override
@@ -119,7 +122,9 @@ class _PrescriptionReviewState extends State<PrescriptionReview> {
             color: AppTheme.primaryContainer,
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.person_rounded, color: AppTheme.primary, size: 20),
+          child: widget.profileImagePath == null
+              ? const Icon(Icons.person_rounded, color: AppTheme.primary, size: 20)
+              : CircleAvatar(backgroundImage: FileImage(File(widget.profileImagePath!))),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -797,12 +802,16 @@ class _TrackerStep extends StatelessWidget {
         ],
       ),
       const SizedBox(width: 12),
-      Padding(
-        padding: const EdgeInsets.only(top: 7),
-        child: Column(
+      Expanded(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 7),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text(
                   title,
@@ -812,8 +821,7 @@ class _TrackerStep extends StatelessWidget {
                     color: done || active ? AppTheme.text : AppTheme.textDisabled,
                   ),
                 ),
-                if (active) ...[
-                  const SizedBox(width: 8),
+                if (active)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
@@ -830,11 +838,11 @@ class _TrackerStep extends StatelessWidget {
                       ),
                     ),
                   ),
-                ],
               ],
             ),
             if (!isLast) const SizedBox(height: 22),
           ],
+        ),
         ),
       ),
     ],
