@@ -21,18 +21,21 @@ const _kThumbnailH = 88.0;
 class PrescriptionReview extends StatefulWidget {
   final PlatformFile file;
   final String patientName;
+  final String? patientId;
+  final List<String> allergies;
   final String? profileImagePath;
 
   const PrescriptionReview({
     super.key,
     required this.file,
     required this.patientName,
+    this.patientId,
+    this.allergies = const [],
     this.profileImagePath,
   });
 
   @override
-  State<PrescriptionReview> createState() =>
-      _PrescriptionReviewState();
+  State<PrescriptionReview> createState() => _PrescriptionReviewState();
 }
 
 class _PrescriptionReviewState extends State<PrescriptionReview> {
@@ -42,8 +45,12 @@ class _PrescriptionReviewState extends State<PrescriptionReview> {
   ];
   int _selectedPage = 0;
 
-  bool get _isImage => const ['.png', '.jpg', '.jpeg', '.webp']
-      .any(_files[_selectedPage].name.toLowerCase().endsWith);
+  bool get _isImage => const [
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.webp',
+  ].any(_files[_selectedPage].name.toLowerCase().endsWith);
 
   // ── Build ──────────────────────────────────────────────────────────────────
 
@@ -58,6 +65,24 @@ class _PrescriptionReviewState extends State<PrescriptionReview> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             children: [
               _patientCard(),
+              if (widget.allergies.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppTheme.warningBg,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'Check for allergies: ${widget.allergies.join(', ')}',
+                    style: const TextStyle(
+                      color: AppTheme.warningText,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               _documentPreviewCard(),
               const SizedBox(height: 20),
@@ -94,7 +119,11 @@ class _PrescriptionReviewState extends State<PrescriptionReview> {
     actions: [
       TextButton.icon(
         onPressed: () => Navigator.pop(context),
-        icon: const Icon(Icons.delete_outline_rounded, size: 16, color: AppTheme.error),
+        icon: const Icon(
+          Icons.delete_outline_rounded,
+          size: 16,
+          color: AppTheme.error,
+        ),
         label: const Text(
           'Discard',
           style: TextStyle(fontSize: 12, color: AppTheme.error),
@@ -123,8 +152,14 @@ class _PrescriptionReviewState extends State<PrescriptionReview> {
             shape: BoxShape.circle,
           ),
           child: widget.profileImagePath == null
-              ? const Icon(Icons.person_rounded, color: AppTheme.primary, size: 20)
-              : CircleAvatar(backgroundImage: FileImage(File(widget.profileImagePath!))),
+              ? const Icon(
+                  Icons.person_rounded,
+                  color: AppTheme.primary,
+                  size: 20,
+                )
+              : CircleAvatar(
+                  backgroundImage: FileImage(File(widget.profileImagePath!)),
+                ),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -156,7 +191,9 @@ class _PrescriptionReviewState extends State<PrescriptionReview> {
           style: OutlinedButton.styleFrom(
             minimumSize: Size.zero,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         ),
       ],
@@ -215,7 +252,10 @@ class _PrescriptionReviewState extends State<PrescriptionReview> {
                     ),
                     Text(
                       'Page ${_selectedPage + 1} of ${_files.length} • Tap to review',
-                      style: const TextStyle(fontSize: 11, color: AppTheme.mutedText),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.mutedText,
+                      ),
                     ),
                   ],
                 ),
@@ -243,11 +283,10 @@ class _PrescriptionReviewState extends State<PrescriptionReview> {
         const Divider(height: 1),
         // Preview
         ClipRRect(
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
-          child: AspectRatio(
-            aspectRatio: .78,
-            child: _preview(),
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(20),
           ),
+          child: AspectRatio(aspectRatio: .78, child: _preview()),
         ),
       ],
     ),
@@ -373,7 +412,11 @@ class _PrescriptionReviewState extends State<PrescriptionReview> {
                     ),
                   ],
                 ),
-                child: const Icon(Icons.close_rounded, size: 12, color: Colors.white),
+                child: const Icon(
+                  Icons.close_rounded,
+                  size: 12,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
@@ -461,7 +504,10 @@ class _PrescriptionReviewState extends State<PrescriptionReview> {
           }
           if (!snapshot.hasData) {
             return const Center(
-              child: CircularProgressIndicator(color: AppTheme.primary, strokeWidth: 2),
+              child: CircularProgressIndicator(
+                color: AppTheme.primary,
+                strokeWidth: 2,
+              ),
             );
           }
           return Image.memory(snapshot.data!, fit: BoxFit.contain);
@@ -475,9 +521,11 @@ class _PrescriptionReviewState extends State<PrescriptionReview> {
     if (!file.name.toLowerCase().endsWith('.pdf') || file.bytes == null) {
       return null;
     }
-    return Printing.raster(file.bytes!, pages: const [0], dpi: 180)
-        .first
-        .then((p) => p.toPng());
+    return Printing.raster(
+      file.bytes!,
+      pages: const [0],
+      dpi: 180,
+    ).first.then((p) => p.toPng());
   }
 
   Widget _previewMessage(String message) => Container(
@@ -545,9 +593,7 @@ class _PrescriptionReviewState extends State<PrescriptionReview> {
   Future<void> _submit() async {
     final submitted = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-        builder: (_) => PrescriptionSubmitted(files: _files),
-      ),
+      MaterialPageRoute(builder: (_) => PrescriptionSubmitted(files: _files)),
     );
     if (!mounted || submitted != true) return;
     Navigator.pop(context, true);
@@ -619,16 +665,25 @@ class PrescriptionSubmitted extends StatelessWidget {
                 // ETA badge
                 Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 9,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.infoBg,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: AppTheme.infoText.withValues(alpha: .2)),
+                      border: Border.all(
+                        color: AppTheme.infoText.withValues(alpha: .2),
+                      ),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.schedule_rounded, size: 14, color: AppTheme.infoText),
+                        Icon(
+                          Icons.schedule_rounded,
+                          size: 14,
+                          color: AppTheme.infoText,
+                        ),
                         SizedBox(width: 6),
                         Text(
                           'Average review time: 30–45 minutes',
@@ -717,7 +772,8 @@ class PrescriptionSubmitted extends StatelessWidget {
                       onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => PrescriptionReviewStatus(files: files),
+                          builder: (_) =>
+                              PrescriptionReviewStatus(files: files),
                         ),
                       ),
                       icon: const Icon(Icons.assignment_outlined, size: 18),
@@ -797,7 +853,9 @@ class _TrackerStep extends StatelessWidget {
             Container(
               width: 1.5,
               height: 22,
-              color: done ? AppTheme.successText.withValues(alpha: .3) : AppTheme.outlineBorder,
+              color: done
+                  ? AppTheme.successText.withValues(alpha: .3)
+                  : AppTheme.outlineBorder,
             ),
         ],
       ),
@@ -806,43 +864,50 @@ class _TrackerStep extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.only(top: 7),
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: done || active ? FontWeight.w600 : FontWeight.normal,
-                    color: done || active ? AppTheme.text : AppTheme.textDisabled,
-                  ),
-                ),
-                if (active)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(20),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: done || active
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                      color: done || active
+                          ? AppTheme.text
+                          : AppTheme.textDisabled,
                     ),
-                    child: const Text(
-                      'In Progress',
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.primary,
-                        letterSpacing: 0.3,
+                  ),
+                  if (active)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'In Progress',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.primary,
+                          letterSpacing: 0.3,
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            if (!isLast) const SizedBox(height: 22),
-          ],
-        ),
+                ],
+              ),
+              if (!isLast) const SizedBox(height: 22),
+            ],
+          ),
         ),
       ),
     ],

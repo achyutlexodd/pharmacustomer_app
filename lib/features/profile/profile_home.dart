@@ -1,13 +1,25 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
+import '../auth/login.dart';
+import '../auth/providers/auth_provider.dart';
 import '../orders/order_history.dart';
 import '../prescriptions/prescription_vault.dart';
+import 'saved_patient_profiles_screen.dart';
 
 class ProfileHome extends StatelessWidget {
-  const ProfileHome({super.key, required this.name, required this.phoneNumber, required this.email, required this.address, required this.onEdit, this.profileImagePath});
+  const ProfileHome({
+    super.key,
+    required this.name,
+    required this.phoneNumber,
+    required this.email,
+    required this.address,
+    required this.onEdit,
+    this.profileImagePath,
+  });
   final String name;
   final String phoneNumber;
   final String email;
@@ -47,12 +59,26 @@ class ProfileHome extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(3),
-                  decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppTheme.primary.withValues(alpha: .25), width: 2)),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppTheme.primary.withValues(alpha: .25),
+                      width: 2,
+                    ),
+                  ),
                   child: CircleAvatar(
                     radius: 32,
                     backgroundColor: AppTheme.surfaceLow,
-                    backgroundImage: profileImagePath == null ? null : FileImage(File(profileImagePath!)),
-                    child: profileImagePath == null ? const Icon(Icons.person_rounded, color: AppTheme.primary, size: 32) : null,
+                    backgroundImage: profileImagePath == null
+                        ? null
+                        : FileImage(File(profileImagePath!)),
+                    child: profileImagePath == null
+                        ? const Icon(
+                            Icons.person_rounded,
+                            color: AppTheme.primary,
+                            size: 32,
+                          )
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 15),
@@ -60,12 +86,35 @@ class ProfileHome extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name.isEmpty ? 'Achyut' : name, maxLines: 1, overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w700, color: AppTheme.text)),
+                      Text(
+                        name.isEmpty ? 'Achyut' : name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 21,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.text,
+                        ),
+                      ),
                       const SizedBox(height: 5),
-                      _ProfileDetail(icon: Icons.phone_outlined, text: phoneNumber.isEmpty ? 'Add phone number' : phoneNumber.startsWith('+') ? phoneNumber : '+91 $phoneNumber'),
-                      if (email.isNotEmpty) _ProfileDetail(icon: Icons.mail_outline_rounded, text: email),
-                      if (address.isNotEmpty) _ProfileDetail(icon: Icons.location_on_outlined, text: address),
+                      _ProfileDetail(
+                        icon: Icons.phone_outlined,
+                        text: phoneNumber.isEmpty
+                            ? 'Add phone number'
+                            : phoneNumber.startsWith('+')
+                            ? phoneNumber
+                            : '+91 $phoneNumber',
+                      ),
+                      if (email.isNotEmpty)
+                        _ProfileDetail(
+                          icon: Icons.mail_outline_rounded,
+                          text: email,
+                        ),
+                      if (address.isNotEmpty)
+                        _ProfileDetail(
+                          icon: Icons.location_on_outlined,
+                          text: address,
+                        ),
                     ],
                   ),
                 ),
@@ -76,7 +125,11 @@ class ProfileHome extends StatelessWidget {
                   child: IconButton(
                     tooltip: 'Edit profile',
                     onPressed: onEdit,
-                    icon: const Icon(Icons.edit_outlined, color: AppTheme.primary, size: 20),
+                    icon: const Icon(
+                      Icons.edit_outlined,
+                      color: AppTheme.primary,
+                      size: 20,
+                    ),
                   ),
                 ),
               ],
@@ -84,7 +137,10 @@ class ProfileHome extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 26),
-        const _SectionTitle('Your health', subtitle: 'Important details for safer care'),
+        const _SectionTitle(
+          'Your health',
+          subtitle: 'Important details for safer care',
+        ),
         const SizedBox(height: 12),
         LayoutBuilder(
           builder: (context, constraints) {
@@ -93,7 +149,7 @@ class ProfileHome extends StatelessWidget {
                 icon: Icons.monitor_heart_outlined,
                 color: AppTheme.primary,
                 label: 'CHRONIC CONDITION',
-                value: 'Type 2 Diabetes',
+                value: 'Diabetes',
               ),
               const _HealthCard(
                 icon: Icons.warning_amber_rounded,
@@ -117,7 +173,10 @@ class ProfileHome extends StatelessWidget {
           },
         ),
         const SizedBox(height: 26),
-        const _SectionTitle('Account', subtitle: 'Manage your care in one place'),
+        const _SectionTitle(
+          'Account',
+          subtitle: 'Manage your care in one place',
+        ),
         const SizedBox(height: 12),
         _panel(
           Column(
@@ -125,10 +184,15 @@ class ProfileHome extends StatelessWidget {
               _AccountRow(
                 icon: Icons.people_outline,
                 title: 'Saved patient profiles',
-                subtitle: 'Self, Mother, Spouse',
+                subtitle: 'Self, Father, Mother and more',
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute<void>(builder: (_) => const OrderHistory()),
+                  MaterialPageRoute<void>(
+                    builder: (_) => SavedPatientProfilesScreen(
+                      userName: name,
+                      profileImagePath: profileImagePath,
+                    ),
+                  ),
                 ),
               ),
               const Divider(height: 1, indent: 64),
@@ -158,13 +222,10 @@ class ProfileHome extends StatelessWidget {
               ),
               const Divider(height: 1, indent: 64),
               _AccountRow(
-                icon: Icons.autorenew_rounded,
-                title: 'Auto-refill subscriptions',
-                subtitle: '2 active · Next refill 12 June',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(builder: (_) => const OrderHistory()),
-                ),
+                icon: Icons.logout_rounded,
+                title: 'Log out',
+                subtitle: 'Sign out of your account',
+                onTap: () => _confirmLogout(context),
               ),
             ],
           ),
@@ -172,6 +233,43 @@ class ProfileHome extends StatelessWidget {
       ],
     ),
   );
+
+  Future<void> _confirmLogout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Log out?'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Log out'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    try {
+      await context.read<AuthProvider>().logout();
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not log out. Please try again.')),
+        );
+      }
+      return;
+    }
+    if (!context.mounted) return;
+    await Navigator.of(context).pushAndRemoveUntil<void>(
+      MaterialPageRoute<void>(builder: (_) => const Login()),
+      (_) => false,
+    );
+  }
 }
 
 class _SectionTitle extends StatelessWidget {
@@ -183,10 +281,20 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(title, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w700, color: AppTheme.text)),
+      Text(
+        title,
+        style: const TextStyle(
+          fontSize: 21,
+          fontWeight: FontWeight.w700,
+          color: AppTheme.text,
+        ),
+      ),
       if (subtitle != null) ...[
         const SizedBox(height: 3),
-        Text(subtitle!, style: const TextStyle(fontSize: 12, color: AppTheme.mutedText)),
+        Text(
+          subtitle!,
+          style: const TextStyle(fontSize: 12, color: AppTheme.mutedText),
+        ),
       ],
     ],
   );
@@ -204,7 +312,14 @@ class _ProfileDetail extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: AppTheme.mutedText),
         const SizedBox(width: 5),
-        Expanded(child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, color: AppTheme.mutedText))),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 12, color: AppTheme.mutedText),
+          ),
+        ),
       ],
     ),
   );
@@ -233,7 +348,10 @@ class _HealthCard extends StatelessWidget {
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(color: color.withValues(alpha: .1), borderRadius: BorderRadius.circular(13)),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: .1),
+              borderRadius: BorderRadius.circular(13),
+            ),
             child: Icon(icon, color: color, size: 22),
           ),
           const SizedBox(width: 12),
@@ -287,15 +405,31 @@ class _AccountRow extends StatelessWidget {
     leading: Container(
       width: 40,
       height: 40,
-      decoration: BoxDecoration(color: AppTheme.primaryContainer.withValues(alpha: .75), borderRadius: BorderRadius.circular(13)),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryContainer.withValues(alpha: .75),
+        borderRadius: BorderRadius.circular(13),
+      ),
       child: Icon(icon, color: AppTheme.primary, size: 21),
     ),
-    title: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.text)),
+    title: Text(
+      title,
+      style: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        color: AppTheme.text,
+      ),
+    ),
     subtitle: Padding(
       padding: const EdgeInsets.only(top: 4),
-      child: Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.mutedText)),
+      child: Text(
+        subtitle,
+        style: const TextStyle(fontSize: 12, color: AppTheme.mutedText),
+      ),
     ),
-    trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.mutedText),
+    trailing: const Icon(
+      Icons.chevron_right_rounded,
+      color: AppTheme.mutedText,
+    ),
     onTap: onTap,
   );
 }

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/providers/cart_notifier.dart';
 import '../../core/providers/profile_notifier.dart';
+import '../orders/providers/orders_provider.dart';
 import 'home.dart';
 import 'search.dart';
 import '../prescriptions/prescription_vault.dart';
@@ -101,8 +102,8 @@ class _MainNavWrapperState extends State<MainNavWrapper> {
           ),
         ],
       ),
-      bottomNavigationBar: Consumer<CartNotifier>(
-        builder: (_, cart, _) => BottomNavigationBar(
+      bottomNavigationBar: Consumer2<CartNotifier, OrdersProvider>(
+        builder: (_, cart, orders, _) => BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (i) => setState(() => _currentIndex = i),
           items: [
@@ -118,7 +119,7 @@ class _MainNavWrapperState extends State<MainNavWrapper> {
             BottomNavigationBarItem(
               icon: _BadgedIcon(
                 icon: Icons.receipt_long_outlined,
-                count: cart.totalCount,
+                count: orders.activeCount,
               ),
               label: 'Orders',
             ),

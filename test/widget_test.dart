@@ -5,7 +5,9 @@ import 'package:pharmacustomer_app/app/app.dart';
 void main() {
   testWidgets('App smoke test — renders without crashing', (WidgetTester tester) async {
     await tester.pumpWidget(const App());
-    // SplashScreen should be the first thing rendered.
-    expect(find.text('pharmaCustomer'), findsOneWidget);
+    expect(find.text('PharmaCustomer'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
   });
 }

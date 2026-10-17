@@ -10,14 +10,22 @@ import 'widgets/prescription_refill_sheet.dart';
 
 class PrescriptionVault extends StatefulWidget {
   final String patientName;
+  final String? patientId;
+  final List<String> allergies;
   final String? profileImagePath;
   final VoidCallback? onBack;
 
-  const PrescriptionVault({super.key, required this.patientName, this.profileImagePath, this.onBack});
+  const PrescriptionVault({
+    super.key,
+    required this.patientName,
+    this.patientId,
+    this.allergies = const [],
+    this.profileImagePath,
+    this.onBack,
+  });
 
   @override
-  State<PrescriptionVault> createState() =>
-      _PrescriptionVaultState();
+  State<PrescriptionVault> createState() => _PrescriptionVaultState();
 }
 
 class _PrescriptionVaultState extends State<PrescriptionVault> {
@@ -140,21 +148,40 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(30),
                 border: Border.all(color: AppTheme.outlineBorder),
-                boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: .07), blurRadius: 20, offset: const Offset(0, 8))],
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primary.withValues(alpha: .07),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-              child: const Icon(Icons.description_outlined, color: AppTheme.primary, size: 44),
+              child: const Icon(
+                Icons.description_outlined,
+                color: AppTheme.primary,
+                size: 44,
+              ),
             ),
             const SizedBox(height: 22),
             const Text(
               'Your prescriptions, all in one place',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 21, height: 1.2, fontWeight: FontWeight.bold, color: AppTheme.text),
+              style: TextStyle(
+                fontSize: 21,
+                height: 1.2,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.text,
+              ),
             ),
             const SizedBox(height: 9),
             const Text(
               'Upload a prescription to get pharmacist support and manage refills securely.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, height: 1.45, color: AppTheme.mutedText),
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.45,
+                color: AppTheme.mutedText,
+              ),
             ),
             const SizedBox(height: 26),
             SizedBox(
@@ -163,19 +190,23 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
                 onPressed: _uploadPrescription,
                 icon: const Icon(Icons.add_a_photo_outlined),
                 label: const Text('Upload prescription'),
-                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 54)),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 54),
+                ),
               ),
             ),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const Search()),
-                ),
+                onPressed: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute<void>(builder: (_) => const Search())),
                 icon: const Icon(Icons.shopping_basket_outlined),
                 label: const Text('Browse OTC & wellness'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
               ),
             ),
             const SizedBox(height: 18),
@@ -184,7 +215,10 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
               children: [
                 Icon(Icons.lock_outline, size: 15, color: AppTheme.mutedText),
                 SizedBox(width: 6),
-                Text('Your documents are stored securely', style: TextStyle(fontSize: 12, color: AppTheme.mutedText)),
+                Text(
+                  'Your documents are stored securely',
+                  style: TextStyle(fontSize: 12, color: AppTheme.mutedText),
+                ),
               ],
             ),
           ],
@@ -201,6 +235,8 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
         builder: (_) => PrescriptionReview(
           file: file,
           patientName: widget.patientName,
+          patientId: widget.patientId,
+          allergies: widget.allergies,
           profileImagePath: widget.profileImagePath,
         ),
       ),
@@ -394,9 +430,17 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
         children: [
           const Text(
             'Past prescriptions',
-            style: TextStyle(fontSize: 17, color: AppTheme.text, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontSize: 17,
+              color: AppTheme.text,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          _pill('${_firstArchiveVisible ? 2 : 1} records', Colors.white, AppTheme.textSecondary),
+          _pill(
+            '${_firstArchiveVisible ? 2 : 1} records',
+            Colors.white,
+            AppTheme.textSecondary,
+          ),
         ],
       ),
       const SizedBox(height: 14),
@@ -490,17 +534,28 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-          color: const Color(0xFFEAF9FD),
-          borderRadius: BorderRadius.circular(15),
+            color: const Color(0xFFEAF9FD),
+            borderRadius: BorderRadius.circular(15),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Row(
                 children: [
-                  Icon(Icons.medication_outlined, color: AppTheme.primary, size: 17),
+                  Icon(
+                    Icons.medication_outlined,
+                    color: AppTheme.primary,
+                    size: 17,
+                  ),
                   SizedBox(width: 6),
-                  Text('Prescribed medicines', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary, fontWeight: FontWeight.w700)),
+                  Text(
+                    'Prescribed medicines',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.textSecondary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 6),
@@ -517,9 +572,22 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.info_outline_rounded, size: 15, color: AppTheme.mutedText),
+                  const Icon(
+                    Icons.info_outline_rounded,
+                    size: 15,
+                    color: AppTheme.mutedText,
+                  ),
                   const SizedBox(width: 6),
-                  Expanded(child: Text(detail, style: const TextStyle(fontSize: 11, height: 1.35, color: AppTheme.textSecondary))),
+                  Expanded(
+                    child: Text(
+                      detail,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        height: 1.35,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -604,19 +672,31 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
                     color: AppTheme.primaryContainer,
                     borderRadius: BorderRadius.circular(22),
                   ),
-                  child: const Icon(Icons.fact_check_outlined, color: AppTheme.primary, size: 34),
+                  child: const Icon(
+                    Icons.fact_check_outlined,
+                    color: AppTheme.primary,
+                    size: 34,
+                  ),
                 ),
                 const SizedBox(height: 18),
                 const Text(
                   'Nothing under review yet',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.text),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.text,
+                  ),
                 ),
                 const SizedBox(height: 7),
                 const Text(
                   'Upload a clear prescription and our pharmacy team will review it. You can follow its progress here.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, height: 1.45, color: AppTheme.mutedText),
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.45,
+                    color: AppTheme.mutedText,
+                  ),
                 ),
                 const SizedBox(height: 18),
                 SizedBox(
@@ -649,9 +729,22 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Prescription submitted', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.text)),
+                        const Text(
+                          'Prescription submitted',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.text,
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        Text('Uploaded just now · 1 page', style: TextStyle(fontSize: 12, color: AppTheme.mutedText)),
+                        Text(
+                          'Uploaded just now · 1 page',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.mutedText,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -661,21 +754,53 @@ class _PrescriptionVaultState extends State<PrescriptionVault> {
               const SizedBox(height: 14),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-                decoration: BoxDecoration(color: AppTheme.primaryContainer.withValues(alpha: .65), borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 11,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryContainer.withValues(alpha: .65),
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: const Row(
                   children: [
-                    Icon(Icons.schedule_rounded, size: 18, color: AppTheme.primary),
+                    Icon(
+                      Icons.schedule_rounded,
+                      size: 18,
+                      color: AppTheme.primary,
+                    ),
                     SizedBox(width: 8),
-                    Expanded(child: Text('Most reviews are completed within 30–45 minutes', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary))),
+                    Expanded(
+                      child: Text(
+                        'Most reviews are completed within 30–45 minutes',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 22),
-              const PrescriptionProgressStep(icon: Icons.check_rounded, title: 'Prescription uploaded', done: true),
-              const PrescriptionProgressStep(icon: Icons.medical_information_outlined, title: 'Pharmacist review', active: true),
-              const PrescriptionProgressStep(icon: Icons.shopping_bag_outlined, title: 'Medicines added to cart'),
-              const PrescriptionProgressStep(icon: Icons.credit_card_outlined, title: 'Ready for payment'),
+              const PrescriptionProgressStep(
+                icon: Icons.check_rounded,
+                title: 'Prescription uploaded',
+                done: true,
+              ),
+              const PrescriptionProgressStep(
+                icon: Icons.medical_information_outlined,
+                title: 'Pharmacist review',
+                active: true,
+              ),
+              const PrescriptionProgressStep(
+                icon: Icons.shopping_bag_outlined,
+                title: 'Medicines added to cart',
+              ),
+              const PrescriptionProgressStep(
+                icon: Icons.credit_card_outlined,
+                title: 'Ready for payment',
+              ),
             ],
           ),
         ),

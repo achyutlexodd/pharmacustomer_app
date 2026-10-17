@@ -30,6 +30,8 @@
 	<string>Your location is used to find nearby delivery service and fill in your address.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Use the camera to take a photo of your prescription.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Select photos or documents of your doctor’s prescription from your library.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/providers/cart_notifier.dart';
+import '../../core/providers/load_status.dart';
 import '../../core/models/cart_item.dart';
 import '../../core/theme.dart';
+import '../prescriptions/providers/prescription_provider.dart';
+import '../prescriptions/repositories/prescription_repository.dart';
 import 'address.dart';
 
 class Cart extends StatelessWidget {
@@ -12,6 +15,10 @@ class Cart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartNotifier>();
+    final rxProvider = context.watch<PrescriptionProvider?>();
+    final rxStatus = rxProvider?.latestStatus ?? PrescriptionStatus.noneAttached;
+    final isHydrating = cart.status == LoadStatus.hydrating;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Shopping Cart (${cart.totalCount} items)'),
@@ -22,8 +29,14 @@ class Cart extends StatelessWidget {
           ),
         ],
       ),
-      body: cart.items.isEmpty
-          ? const Center(child: Text('Your cart is empty'))
+      body: isHydrating
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primary),
+              ),
+            )
+          : cart.items.isEmpty
+              ? const Center(child: Text('Your cart is empty'))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -149,7 +162,7 @@ class Cart extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
-                  height: 112,
+                  height: 90,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
@@ -192,14 +205,22 @@ class Cart extends StatelessWidget {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: AppTheme.successBg,
+                                color: rxStatus == PrescriptionStatus.rejected
+                                    ? AppTheme.errorBg
+                                    : rxStatus == PrescriptionStatus.uploaded || rxStatus == PrescriptionStatus.approved
+                                        ? AppTheme.successBg
+                                        : AppTheme.surfaceLow,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Text(
-                                'Ready for verification',
+                              child: Text(
+                                rxStatus.chipLabel,
                                 style: TextStyle(
                                   fontSize: 10,
-                                  color: AppTheme.successText,
+                                  color: rxStatus == PrescriptionStatus.rejected
+                                      ? AppTheme.error
+                                      : rxStatus == PrescriptionStatus.uploaded || rxStatus == PrescriptionStatus.approved
+                                          ? AppTheme.successText
+                                          : AppTheme.textSecondary,
                                 ),
                               ),
                             ),
@@ -223,6 +244,7 @@ class Cart extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -281,10 +303,21 @@ class Cart extends StatelessWidget {
           : SafeArea(
               minimum: const EdgeInsets.all(16),
               child: ElevatedButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(builder: (_) => const Address()),
-                ),
+                onPressed: () {
+                  if (cart.hasRxLines && !cart.hasPrescriptionAttached && rxStatus == PrescriptionStatus.noneAttached) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please upload or attach a prescription for Rx medicines to proceed.'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                    return;
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(builder: (_) => const Address()),
+                  );
+                },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
